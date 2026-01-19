@@ -209,3 +209,7 @@ __marimo__/
 # Atlas specific
 temp_legacy/
 qdrant_data/
+node_modules/
+mock-external-system/
+*.tar.gz
+tmpclaude-*
