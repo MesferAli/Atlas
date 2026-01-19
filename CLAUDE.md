@@ -49,4 +49,6 @@ src/atlas/
 ├── connectors/oracle/    # Oracle Connector Lite (read-only DB access)
 │   ├── connector.py      # OracleConnector class with validate_query() security
 │   └── indexer.py        # OracleSchemaIndexer for RAG-based schema search
+├── agent/
+│   └── sql_agent.py      # OracleSQLAgent for NL-to-SQL with RAG pipeline
 ```
