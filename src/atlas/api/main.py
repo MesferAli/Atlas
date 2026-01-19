@@ -116,6 +116,17 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
 
+@app.get("/v1/security")
+async def security_status() -> dict:
+    """
+    Security configuration status endpoint.
+
+    Use this to verify security settings for government/enterprise compliance.
+    Shows: Thin Mode, Read-Only enforcement, blocked operations.
+    """
+    return OracleConnector.get_security_status()
+
+
 @app.post("/v1/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     """
