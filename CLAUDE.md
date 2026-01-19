@@ -47,5 +47,6 @@ ruff format src/ tests/
 ```
 src/atlas/
 ├── connectors/oracle/    # Oracle Connector Lite (read-only DB access)
-│   └── connector.py      # OracleConnector class with validate_query() security
+│   ├── connector.py      # OracleConnector class with validate_query() security
+│   └── indexer.py        # OracleSchemaIndexer for RAG-based schema search
 ```
