@@ -1,6 +1,8 @@
-import paramiko
+import os
+import sys
 import time
-import getpass
+
+import paramiko
 
 # إعدادات السيرفر
 SERVER_IP = "72.62.186.228"
@@ -67,15 +69,14 @@ docker-compose up -d --build
 """
 
 
-def deploy():
+def deploy(password):
     print(f"🚀 Connecting to {SERVER_IP}...")
-    password = getpass.getpass(f"Enter password for {USERNAME}@{SERVER_IP}: ")
 
     try:
         # 1. إنشاء الاتصال
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(SERVER_IP, username=USERNAME, password=password)
+        client.connect(SERVER_IP, username=USERNAME, password=password, timeout=30)
 
         print("✅ Connected! Uploading project files...")
 
@@ -88,7 +89,7 @@ def deploy():
                 sftp.put(local_path, remote_path)
                 print(f"   📄 Uploaded: {local_path}")
             except Exception as e:
-                print(f"   ⚠️ Skipping {local_path} (Not found)")
+                print(f"   ⚠️ Skipping {local_path} ({e})")
 
         # التأكد من وجود المجلدات هناك
         client.exec_command(
@@ -98,9 +99,14 @@ def deploy():
 
         # رفع الملفات المهمة
         upload_file("api/main.py", "/root/atlas_erp/api/main.py")
+        upload_file("api/__init__.py", "/root/atlas_erp/api/__init__.py")
         upload_file(
             "db_guardrails/safe_db_connector.py",
             "/root/atlas_erp/db_guardrails/safe_db_connector.py",
+        )
+        upload_file(
+            "db_guardrails/__init__.py",
+            "/root/atlas_erp/db_guardrails/__init__.py",
         )
         upload_file("templates/dashboard.html", "/root/atlas_erp/templates/dashboard.html")
         upload_file("templates/index.html", "/root/atlas_erp/templates/index.html")
@@ -110,11 +116,16 @@ def deploy():
 
         # 3. تنفيذ أوامر Docker
         print("⚙️  Running deployment script on server (this takes ~2 mins)...")
-        stdin, stdout, stderr = client.exec_command(DEPLOYMENT_SCRIPT)
+        stdin, stdout, stderr = client.exec_command(DEPLOYMENT_SCRIPT, timeout=300)
 
         # عرض المخرجات مباشرة
         for line in stdout:
             print("   [Server] " + line.strip())
+
+        # Check for errors
+        err = stderr.read().decode()
+        if err:
+            print(f"   [Server Errors] {err}")
 
         print("\n✅ Deployment Finished Successfully!")
         print(f"🌍 Your App is Live: http://{SERVER_IP}")
@@ -126,4 +137,21 @@ def deploy():
 
 
 if __name__ == "__main__":
-    deploy()
+    # Get password from environment variable or command line argument
+    password = os.environ.get("SERVER_PASSWORD")
+
+    if not password and len(sys.argv) > 1:
+        password = sys.argv[1]
+
+    if not password:
+        try:
+            import getpass
+
+            password = getpass.getpass(f"Enter password for {USERNAME}@{SERVER_IP}: ")
+        except Exception:
+            print("❌ Error: No password provided.")
+            print("Usage: python scripts/deploy_to_server.py <password>")
+            print("   or: SERVER_PASSWORD=<password> python scripts/deploy_to_server.py")
+            sys.exit(1)
+
+    deploy(password)
