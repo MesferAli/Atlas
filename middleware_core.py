@@ -1,6 +1,6 @@
 """
-Saudi AI Middleware (Pro MLOps) v2.2
-Central intelligence layer with PostgreSQL-backed MLOps pipeline.
+Saudi AI Middleware (Pro MLOps + NLP) v2.3
+Central intelligence layer with intent classification and routing.
 """
 import re
 import uuid
@@ -8,7 +8,7 @@ import uuid
 import psycopg2
 from fastapi import Body, FastAPI
 
-app = FastAPI(title="Saudi AI Middleware (Pro MLOps)")
+app = FastAPI(title="Saudi AI Middleware (Pro MLOps + NLP)")
 
 
 def get_db():
@@ -19,6 +19,92 @@ def get_db():
         user="atlas_admin",
         password="Atlas_Secure_2026"
     )
+
+
+# --- Intent Classification Engine ---
+class IntentEngine:
+    """Saudi Arabic intent classification with rule-based fallback."""
+
+    def clean_text(self, text: str) -> str:
+        text = str(text).lower()
+        text = re.sub(r'[^\w\s\u0600-\u06FF]', '', text)
+        return text.strip()
+
+    def classify(self, text: str) -> str:
+        text_lower = self.clean_text(text)
+
+        # Pricing
+        if any(kw in text_lower for kw in [
+            'سعر', 'كم', 'تكلفة', 'اشتراك', 'باقة', 'خصم', 'price'
+        ]):
+            return 'pricing_question'
+
+        # Support
+        if any(kw in text_lower for kw in [
+            'مشكلة', 'خطأ', 'مو راضي', 'ما يشتغل', 'معلق', 'help', 'error'
+        ]):
+            return 'support_request'
+
+        # Greeting
+        if any(kw in text_lower for kw in [
+            'السلام', 'مرحبا', 'صباح', 'مساء', 'هلا', 'أهلا', 'hello'
+        ]):
+            return 'greeting'
+
+        # Complaint
+        if any(kw in text_lower for kw in [
+            'شكوى', 'زعلان', 'مستاء', 'سيء', 'complaint'
+        ]):
+            return 'complaint'
+
+        # Order
+        if any(kw in text_lower for kw in ['طلب', 'اشتري', 'شراء', 'order', 'buy']):
+            return 'order_inquiry'
+
+        return 'general_inquiry'
+
+    def route(self, message: str) -> dict:
+        intent = self.classify(message)
+
+        routing = {
+            'pricing_question': (
+                'Generate Quote', 'Sales Team', 'medium',
+                'شكراً لاستفسارك! سيتواصل معك فريق المبيعات.'
+            ),
+            'support_request': (
+                'Create Ticket', 'Tech Support', 'high',
+                'تم استلام طلبك! فريق الدعم سيساعدك قريباً.'
+            ),
+            'greeting': (
+                'Auto Reply', 'AI Agent', 'low',
+                'أهلاً وسهلاً! كيف يمكنني مساعدتك؟'
+            ),
+            'complaint': (
+                'Escalate', 'Customer Relations', 'urgent',
+                'نأسف لذلك. سيتواصل معك المدير شخصياً.'
+            ),
+            'order_inquiry': (
+                'Check Status', 'Operations', 'medium',
+                'جاري التحقق من طلبك...'
+            ),
+            'general_inquiry': (
+                'Log', 'General Inbox', 'low',
+                'شكراً لتواصلك! سنرد قريباً.'
+            )
+        }
+
+        action, dept, priority, reply = routing.get(
+            intent, routing['general_inquiry']
+        )
+
+        return {
+            'original_message': message,
+            'detected_intent': intent,
+            'action': action,
+            'department': dept,
+            'priority': priority,
+            'auto_reply': reply
+        }
 
 
 # --- Compliance Engine (PDPL) ---
@@ -109,9 +195,17 @@ class DecisionEngine:
         return {"allowed": allowed, "reason": reason, "prediction_id": pred_id}
 
 
+intent_engine = IntentEngine()
 compliance = ComplianceEngine()
 context_layer = ContextLayer()
 engine = DecisionEngine()
+
+
+@app.post("/v1/intent/classify")
+def classify_intent(payload: dict = Body(...)):
+    """Classify message intent and return routing recommendation."""
+    message = payload.get("message", "")
+    return intent_engine.route(message)
 
 
 @app.post("/v1/compliance/scan")
@@ -200,21 +294,19 @@ def get_stats():
 
 @app.get("/")
 def root():
-    return {"status": "Operational", "version": "Pro MLOps 2.2"}
+    return {"status": "Operational", "version": "2.3 NLP"}
 
 
 @app.get("/health")
 def health():
-    stats = get_stats()
     return {
         "status": "healthy",
-        "service": "Saudi AI Middleware (Pro MLOps)",
-        "version": "2.2",
-        "layers": [
+        "service": "Saudi AI Middleware",
+        "version": "2.3",
+        "capabilities": [
             "PDPL Compliance",
-            "Context Analysis",
+            "Intent Classification",
             "Decision Engine",
-            "PostgreSQL MLOps"
-        ],
-        "stats": stats
+            "MLOps"
+        ]
     }
