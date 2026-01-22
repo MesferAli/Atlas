@@ -1,69 +1,24 @@
 """
-Saudi AI Middleware + MLOps v2.1
-Central intelligence layer for Atlas ERP with continuous learning capabilities.
+Saudi AI Middleware (Pro MLOps) v2.2
+Central intelligence layer with PostgreSQL-backed MLOps pipeline.
 """
-import datetime
-import json
 import re
+import uuid
 
+import psycopg2
 from fastapi import Body, FastAPI
 
-app = FastAPI(title="Saudi AI Middleware + MLOps v2.1")
-
-FEEDBACK_FILE = "/tmp/mlops_feedback.jsonl"
+app = FastAPI(title="Saudi AI Middleware (Pro MLOps)")
 
 
-# --- MLOps Engine ---
-class MLOpsEngine:
-    """
-    MLOps layer for tracking predictions and capturing user feedback.
-    Enables continuous improvement through human-in-the-loop learning.
-    """
-
-    def log_prediction(self, model_name, input_data, output, confidence):
-        """Log prediction for observability and future analysis."""
-        log_entry = {
-            "timestamp": str(datetime.datetime.now()),
-            "model": model_name,
-            "input": input_data,
-            "prediction": output,
-            "confidence": confidence
-        }
-        print(f"MLOPS LOG: {json.dumps(log_entry)}")
-        return log_entry
-
-    def capture_feedback(self, prediction_id, user_feedback, correction=None):
-        """
-        Capture user feedback on a prediction.
-        This is the core of MLOps: learning from mistakes.
-        """
-        entry = {
-            "timestamp": str(datetime.datetime.now()),
-            "prediction_id": prediction_id,
-            "feedback": user_feedback,
-            "correction": correction
-        }
-        try:
-            with open(FEEDBACK_FILE, "a") as f:
-                f.write(json.dumps(entry) + "\n")
-        except Exception as e:
-            print(f"Feedback write error: {e}")
-
-        return {"status": "Feedback Recorded", "drift_alert": False}
-
-    def get_feedback_stats(self):
-        """Get statistics on collected feedback."""
-        try:
-            with open(FEEDBACK_FILE, "r") as f:
-                lines = f.readlines()
-            positive = sum(1 for line in lines if '"feedback": "positive"' in line)
-            negative = sum(1 for line in lines if '"feedback": "negative"' in line)
-            return {"total": len(lines), "positive": positive, "negative": negative}
-        except FileNotFoundError:
-            return {"total": 0, "positive": 0, "negative": 0}
-
-
-mlops = MLOpsEngine()
+def get_db():
+    """Get PostgreSQL database connection."""
+    return psycopg2.connect(
+        host="atlas-db",
+        database="atlas_production",
+        user="atlas_admin",
+        password="Atlas_Secure_2026"
+    )
 
 
 # --- Compliance Engine (PDPL) ---
@@ -107,43 +62,56 @@ class ContextLayer:
 
     def analyze_domain(self, text: str):
         text_lower = text.lower()
-        if any(w in text_lower for w in ["zakat", "tax", "invoice", "فاتورة"]):
+        if any(w in text_lower for w in ["zakat", "tax", "invoice"]):
             return "Taxation & ZATCA"
-        elif any(w in text_lower for w in ["salary", "hire", "leave", "راتب"]):
+        elif any(w in text_lower for w in ["salary", "hire", "leave"]):
             return "HR & Labor Law"
-        elif any(w in text_lower for w in ["purchase", "vendor", "شراء"]):
+        elif any(w in text_lower for w in ["purchase", "vendor"]):
             return "Procurement"
         return "General"
 
 
-# --- Decision Engine ---
+# --- Decision Engine with PostgreSQL Logging ---
 class DecisionEngine:
-    """Central policy enforcement for business decisions."""
+    """Central policy enforcement with DB-backed MLOps logging."""
 
-    def evaluate_transaction(self, context, risk_score, amount):
-        decision = {"allowed": True, "reason": "Approved by AI Middleware"}
+    def __init__(self):
+        self.current_version = "v1.0.0"
+
+    def evaluate(self, context, risk_score, amount):
+        allowed = True
+        reason = "Approved by AI Middleware"
 
         if risk_score > 60:
-            decision = {"allowed": False, "reason": "High Risk Vendor (Central Policy)"}
+            allowed = False
+            reason = "High Risk Vendor (Central Policy)"
         elif amount > 100000:
-            decision = {"allowed": False, "reason": "Amount exceeds auto-approval limit"}
+            allowed = False
+            reason = "Amount exceeds auto-approval limit"
 
-        # Log to MLOps
-        mlops.log_prediction(
-            "risk_model_v1",
-            {"risk": risk_score, "amount": amount, "context": context},
-            decision,
-            0.95
-        )
-        return decision
+        # MLOps: Log prediction to PostgreSQL
+        pred_id = str(uuid.uuid4())
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute(
+                """INSERT INTO ai_predictions
+                   (id, model_version, input_context, risk_score, decision)
+                   VALUES (%s, %s, %s, %s, %s)""",
+                (pred_id, self.current_version, str(context), risk_score,
+                 "ALLOWED" if allowed else "BLOCKED")
+            )
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"MLOps DB Log Error: {e}")
+
+        return {"allowed": allowed, "reason": reason, "prediction_id": pred_id}
 
 
 compliance = ComplianceEngine()
 context_layer = ContextLayer()
-decision = DecisionEngine()
-
-
-# --- API Endpoints ---
+engine = DecisionEngine()
 
 
 @app.post("/v1/compliance/scan")
@@ -160,50 +128,93 @@ def analyze_context(payload: dict = Body(...)):
 
 @app.post("/v1/decision/evaluate")
 def evaluate(payload: dict = Body(...)):
-    """Evaluate a business transaction and return decision with prediction_id."""
-    pred_id = f"pred_{int(datetime.datetime.now().timestamp())}"
-    res = decision.evaluate_transaction(
-        context=payload.get("context", ""),
-        risk_score=payload.get("risk_score", 0),
-        amount=payload.get("amount", 0)
+    """Evaluate a business transaction and log to PostgreSQL."""
+    return engine.evaluate(
+        payload.get("context", ""),
+        payload.get("risk_score", 0),
+        payload.get("amount", 0)
     )
-    res["prediction_id"] = pred_id
-    return res
 
 
 @app.post("/v1/mlops/feedback")
-def submit_feedback(payload: dict = Body(...)):
-    """Submit user feedback on a prediction for continuous learning."""
-    return mlops.capture_feedback(
-        prediction_id=payload.get("prediction_id"),
-        user_feedback=payload.get("feedback"),
-        correction=payload.get("correction")
-    )
+def feedback(payload: dict = Body(...)):
+    """Store user feedback in PostgreSQL for model improvement."""
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            """INSERT INTO ai_feedback
+               (prediction_id, actual_feedback, correction_note)
+               VALUES (%s, %s, %s)""",
+            (payload.get("prediction_id"),
+             payload.get("feedback"),
+             payload.get("correction"))
+        )
+        conn.commit()
+        conn.close()
+        return {"status": "success", "message": "Feedback recorded in database"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 
 @app.get("/v1/mlops/stats")
 def get_stats():
-    """Get feedback statistics for monitoring model drift."""
-    return mlops.get_feedback_stats()
+    """Get MLOps statistics from PostgreSQL."""
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("SELECT COUNT(*) FROM ai_predictions")
+        total_predictions = cur.fetchone()[0]
+
+        cur.execute(
+            "SELECT COUNT(*) FROM ai_feedback WHERE actual_feedback = 'positive'"
+        )
+        positive = cur.fetchone()[0]
+
+        cur.execute(
+            "SELECT COUNT(*) FROM ai_feedback WHERE actual_feedback = 'negative'"
+        )
+        negative = cur.fetchone()[0]
+
+        cur.execute(
+            "SELECT version, status FROM ai_models WHERE status = 'ACTIVE' LIMIT 1"
+        )
+        model_info = cur.fetchone()
+
+        conn.close()
+
+        total_fb = positive + negative
+        accuracy = (positive / total_fb * 100) if total_fb > 0 else 100
+
+        return {
+            "model_version": model_info[0] if model_info else "unknown",
+            "model_status": model_info[1] if model_info else "unknown",
+            "total_predictions": total_predictions,
+            "feedback": {"positive": positive, "negative": negative},
+            "accuracy": round(accuracy, 1)
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @app.get("/")
 def root():
-    return {"status": "Middleware Operational", "version": "2.1 MLOps"}
+    return {"status": "Operational", "version": "Pro MLOps 2.2"}
 
 
 @app.get("/health")
 def health():
-    stats = mlops.get_feedback_stats()
+    stats = get_stats()
     return {
         "status": "healthy",
-        "service": "Saudi AI Middleware + MLOps",
-        "version": "2.1",
+        "service": "Saudi AI Middleware (Pro MLOps)",
+        "version": "2.2",
         "layers": [
             "PDPL Compliance",
             "Context Analysis",
             "Decision Engine",
-            "MLOps Feedback"
+            "PostgreSQL MLOps"
         ],
-        "feedback_stats": stats
+        "stats": stats
     }
