@@ -1,1 +1,1 @@
-# Atlas API package
+"""Atlas API module."""
