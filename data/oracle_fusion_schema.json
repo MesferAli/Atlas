@@ -1,0 +1,85 @@
+[
+  {
+    "object_type": "TABLE",
+    "name": "PER_ALL_PEOPLE_F",
+    "description": "The master table for all person records (Employees, Contingent Workers). Contains DateTracked personal details.",
+    "columns": [
+      "PERSON_ID (PK)",
+      "PERSON_NUMBER (Business Key)",
+      "EFFECTIVE_START_DATE",
+      "EFFECTIVE_END_DATE",
+      "START_DATE (Hire Date)",
+      "FULL_NAME"
+    ],
+    "security_metadata": {
+      "classification": "CONFIDENTIAL",
+      "min_required_role": "PER_EMPLOYEE_ROLE",
+      "access_predicate": "PERSON_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PER_ALL_ASSIGNMENTS_M",
+    "description": "Contains employment terms, assignment status, job, position, grade, and department (Organization) details.",
+    "columns": [
+      "ASSIGNMENT_ID (PK)",
+      "PERSON_ID (FK)",
+      "JOB_ID",
+      "ORGANIZATION_ID",
+      "ASSIGNMENT_TYPE (E=Employee, C=Contingent)",
+      "EFFECTIVE_LATEST_CHANGE",
+      "LOCATION_ID"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "LINE_MANAGER_ROLE",
+      "access_predicate": "MANAGER_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "CMP_ASG_SALARY",
+    "description": "Stores salary amount, components, and currency. HIGHLY SENSITIVE financial data.",
+    "columns": [
+      "SALARY_ID (PK)",
+      "ASSIGNMENT_ID (FK)",
+      "SALARY_AMOUNT",
+      "CURRENCY_CODE",
+      "DATE_FROM",
+      "DATE_TO",
+      "SALARY_BASIS_ID"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "PAYROLL_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_PAYROLL_PRIVILEGE"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PAY_PAYROLL_RELATIONS",
+    "description": "Links a person to a payroll statutory unit and legislative data group (LDG). Critical for Saudi Payroll.",
+    "columns": [
+      "PAYROLL_RELATIONSHIP_ID (PK)",
+      "PERSON_ID (FK)",
+      "LEGISLATIVE_DATA_GROUP_ID",
+      "START_DATE"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "PAYROLL_ADMIN_ROLE",
+      "access_predicate": "NONE"
+    }
+  },
+  {
+    "object_type": "FUNCTION",
+    "name": "GET_PAY_AMOUNT",
+    "description": "Calculates the net pay or specific element value for a given assignment and date range.",
+    "parameters": ["ASSIGNMENT_ID", "ELEMENT_TYPE_ID", "EFFECTIVE_DATE"],
+    "return_type": "NUMBER",
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "PAYROLL_MANAGER_ROLE"
+    }
+  }
+]
