@@ -12,7 +12,7 @@ from peft import LoraConfig, get_peft_model
 # ========================================================
 # ⚙️ إعدادات المشروع
 # ========================================================
-MODEL_NAME = "Qwen/Qwen2.5-32B-Instruct"
+MODEL_NAME = "Qwen/Qwen2.5-7B-Instruct"
 DATA_PATH = "/workspace/atlas_erp/data/qwen_train.jsonl"
 OUTPUT_DIR = "/workspace/atlas_erp/models/atlas-qwen-full"
 
