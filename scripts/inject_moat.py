@@ -6,11 +6,17 @@ This script reads the Oracle Fusion schema JSON and upserts it into Qdrant
 with security metadata (min_required_role, classification) for role-based filtering.
 
 Usage:
-    python scripts/inject_moat.py [--schema-path PATH] [--qdrant-path PATH]
+    # Local mode (file-based Qdrant)
+    python scripts/inject_moat.py --qdrant-path ./qdrant_data
+
+    # Server mode (Qdrant server)
+    python scripts/inject_moat.py --qdrant-host localhost --qdrant-port 6333
 
 Environment Variables:
     ATLAS_SCHEMA_PATH: Path to oracle_fusion_schema.json
-    ATLAS_QDRANT_PATH: Path to Qdrant storage directory
+    ATLAS_QDRANT_PATH: Path to Qdrant storage directory (local mode)
+    ATLAS_QDRANT_HOST: Qdrant server host (server mode)
+    ATLAS_QDRANT_PORT: Qdrant server port (server mode)
 """
 
 import argparse
@@ -18,12 +24,10 @@ import json
 import os
 import sys
 from pathlib import Path
-from uuid import uuid4
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
-
 
 # Configuration
 COLLECTION_NAME = "oracle_schema"
@@ -33,6 +37,8 @@ EMBEDDING_DIM = 384
 # Default paths
 DEFAULT_SCHEMA_PATH = "/workspace/atlas_erp/data/oracle_fusion_schema.json"
 DEFAULT_QDRANT_PATH = "./qdrant_data"
+DEFAULT_QDRANT_HOST = "localhost"
+DEFAULT_QDRANT_PORT = 6333
 
 
 def load_schema(schema_path: str) -> list[dict]:
@@ -83,10 +89,7 @@ def build_document(obj: dict) -> str:
 
 def create_qdrant_collection(client: QdrantClient) -> None:
     """Create or recreate the Qdrant collection."""
-    collections = client.get_collections().collections
-    exists = any(c.name == COLLECTION_NAME for c in collections)
-
-    if exists:
+    if client.collection_exists(COLLECTION_NAME):
         print(f"Deleting existing collection: {COLLECTION_NAME}")
         client.delete_collection(COLLECTION_NAME)
 
@@ -118,8 +121,8 @@ def inject_schema(
     """
     points = []
 
-    for obj in schema:
-        # Build searchable document
+    for idx, obj in enumerate(schema):
+        # Build searchable document (combine name, description, columns)
         document = build_document(obj)
 
         # Generate embedding
@@ -130,8 +133,8 @@ def inject_schema(
 
         # Build payload with all metadata for filtering
         payload = {
-            "object_type": obj["object_type"],
             "name": obj["name"],
+            "type": obj["object_type"],
             "description": obj["description"],
             "document": document,
             # Security metadata for role-based filtering
@@ -148,15 +151,18 @@ def inject_schema(
         if "return_type" in obj:
             payload["return_type"] = obj["return_type"]
 
-        # Create point
+        # Create point with integer ID (more compatible)
         point = PointStruct(
-            id=str(uuid4()),
+            id=idx,
             vector=embedding.tolist(),
             payload=payload,
         )
         points.append(point)
 
-        print(f"  + {obj['object_type']}: {obj['name']} [{security.get('classification', 'N/A')}]")
+        classification = security.get("classification", "N/A")
+        role = security.get("min_required_role", "N/A")
+        print(f"  + {obj['object_type']}: {obj['name']}")
+        print(f"    Classification: {classification} | Role: {role}")
 
     # Upsert all points
     client.upsert(
@@ -170,11 +176,11 @@ def inject_schema(
 def verify_collection(client: QdrantClient) -> None:
     """Verify the collection was created correctly."""
     info = client.get_collection(COLLECTION_NAME)
-    print(f"\nCollection Stats:")
+    print("\nCollection Stats:")
     print(f"  Points: {info.points_count}")
 
     # Sample query to verify
-    print(f"\nSample search for 'salary':")
+    print("\nSample search for 'salary':")
     embedder = SentenceTransformer(EMBEDDING_MODEL)
     query_vector = embedder.encode("salary employee payment").tolist()
 
@@ -201,16 +207,41 @@ def main():
     )
     parser.add_argument(
         "--qdrant-path",
-        default=os.getenv("ATLAS_QDRANT_PATH", DEFAULT_QDRANT_PATH),
-        help="Path to Qdrant storage directory",
+        default=os.getenv("ATLAS_QDRANT_PATH"),
+        help="Path to Qdrant storage directory (local mode)",
+    )
+    parser.add_argument(
+        "--qdrant-host",
+        default=os.getenv("ATLAS_QDRANT_HOST"),
+        help="Qdrant server host (server mode)",
+    )
+    parser.add_argument(
+        "--qdrant-port",
+        type=int,
+        default=int(os.getenv("ATLAS_QDRANT_PORT", DEFAULT_QDRANT_PORT)),
+        help="Qdrant server port (server mode)",
     )
     args = parser.parse_args()
+
+    # Determine connection mode
+    if args.qdrant_host:
+        mode = "server"
+        qdrant_info = f"{args.qdrant_host}:{args.qdrant_port}"
+    elif args.qdrant_path:
+        mode = "local"
+        qdrant_info = args.qdrant_path
+    else:
+        # Default to local mode
+        mode = "local"
+        args.qdrant_path = DEFAULT_QDRANT_PATH
+        qdrant_info = args.qdrant_path
 
     print("=" * 60)
     print("Data Moat Injection - Oracle Fusion Schema to Qdrant")
     print("=" * 60)
     print(f"Schema Path: {args.schema_path}")
-    print(f"Qdrant Path: {args.qdrant_path}")
+    print(f"Qdrant Mode: {mode.upper()}")
+    print(f"Qdrant:      {qdrant_info}")
     print(f"Collection:  {COLLECTION_NAME}")
     print(f"Model:       {EMBEDDING_MODEL}")
     print("=" * 60)
@@ -221,7 +252,10 @@ def main():
 
     # Initialize Qdrant
     print("\n[2/4] Initializing Qdrant...")
-    client = QdrantClient(path=args.qdrant_path)
+    if mode == "server":
+        client = QdrantClient(host=args.qdrant_host, port=args.qdrant_port)
+    else:
+        client = QdrantClient(path=args.qdrant_path)
 
     # Create collection
     print("\n[3/4] Creating collection...")
