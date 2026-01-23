@@ -4,22 +4,17 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
-    TrainingArguments,
 )
-from trl import SFTTrainer
-from peft import LoraConfig, get_peft_model
+from trl import SFTTrainer, SFTConfig
+from peft import LoraConfig
 
 # ========================================================
-# ⚙️ إعدادات المشروع
-# ========================================================
-MODEL_NAME = "Qwen/Qwen2.5-7B-Instruct"
+MODEL_NAME = "/workspace/models/qwen-2.5-7b-atlas"
 DATA_PATH = "/workspace/atlas_erp/data/qwen_train.jsonl"
 OUTPUT_DIR = "/workspace/atlas_erp/models/atlas-qwen-full"
 
 print(f"🚀 جاري تجهيز أطلس للتدريب المكثف على موديل: {MODEL_NAME}")
 
-# ========================================================
-# 1️⃣ تحميل الموديل بضغط عالي (4-bit)
 # ========================================================
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -40,8 +35,6 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
 
 # ========================================================
-# 2️⃣ إعدادات المحول (LoRA Adapter)
-# ========================================================
 peft_config = LoraConfig(
     lora_alpha=16,
     lora_dropout=0.05,
@@ -52,8 +45,6 @@ peft_config = LoraConfig(
 )
 
 # ========================================================
-# 3️⃣ تحميل البيانات السعودية
-# ========================================================
 try:
     dataset = load_dataset("json", data_files=DATA_PATH, split="train")
     print(f"✅ تم تحميل {len(dataset)} سجل سعودي جاهز للحقن!")
@@ -62,9 +53,7 @@ except Exception as e:
     exit()
 
 # ========================================================
-# 4️⃣ إعدادات التدريب (1000 خطوة)
-# ========================================================
-training_args = TrainingArguments(
+sft_config = SFTConfig(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
@@ -72,35 +61,29 @@ training_args = TrainingArguments(
     save_steps=200,
     logging_steps=25,
     learning_rate=1e-4,
-    fp16=True,
+    fp16=False,
     max_grad_norm=0.3,
-    max_steps=1000,     # 🔥 التدريب الطويل
+    max_steps=1000,
     warmup_ratio=0.03,
     group_by_length=True,
     lr_scheduler_type="cosine",
-    report_to="tensorboard"
+    report_to="none",
+    dataset_text_field="text",
+    max_length=1024,
 )
 
-# ========================================================
-# 5️⃣ بدء المعركة
-# ========================================================
 print("🔥 الفرن جاهز.. جاري بدء التدريب (هذا قد يستغرق ساعة أو ساعتين)...")
 
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
     peft_config=peft_config,
-    dataset_text_field="text",
-    max_seq_length=1024,
     processing_class=tokenizer,
-    args=training_args,
+    args=sft_config,
 )
 
 trainer.train()
 
-# ========================================================
-# 6️⃣ الحفظ النهائي
-# ========================================================
 print("🎉 تم الانتهاء بنجاح! جاري حفظ النسخة النهائية...")
 trainer.model.save_pretrained(f"{OUTPUT_DIR}/final")
 tokenizer.save_pretrained(f"{OUTPUT_DIR}/final")
