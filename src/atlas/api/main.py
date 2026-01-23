@@ -1,5 +1,6 @@
 """Atlas API - FastAPI service for Oracle SQL RAG Agent."""
 
+import os
 from contextlib import asynccontextmanager
 from typing import Any
 from unittest.mock import MagicMock
@@ -7,9 +8,14 @@ from unittest.mock import MagicMock
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from atlas.agent.sql_agent import MockLLM, OracleSQLAgent
+from atlas.agent.sql_agent import BaseLLM, MockLLM, OracleSQLAgent
 from atlas.connectors.oracle.connector import OracleConnector
 from atlas.connectors.oracle.indexer import OracleSchemaIndexer
+
+# Environment configuration
+USE_UNSLOTH = os.getenv("ATLAS_USE_UNSLOTH", "false").lower() == "true"
+MODEL_PATH = os.getenv("ATLAS_MODEL_PATH", "/workspace/atlas_erp/models/atlas-qwen-full/final")
+QDRANT_PATH = os.getenv("ATLAS_QDRANT_PATH", "./qdrant_data")
 
 
 class ChatRequest(BaseModel):
@@ -60,22 +66,50 @@ def _create_mock_indexer() -> OracleSchemaIndexer:
 
     def mock_search(query: str, limit: int = 5) -> list[dict[str, Any]]:
         query_lower = query.lower()
-        if "customer" in query_lower:
+
+        # Arabic keywords mapping
+        # رواتب = salaries, موظفين = employees, عملاء = customers
+        # إجمالي = total, الشهر = month
+
+        if "customer" in query_lower or "عملاء" in query:
             return [
                 {
                     "table_name": "CUSTOMERS",
                     "owner": "ERP",
-                    "comments": "Master customer records",
+                    "comments": "Master customer records / سجلات العملاء الرئيسية",
                     "score": 0.92,
                 },
             ]
-        elif "employee" in query_lower:
+        is_payroll = (
+            "employee" in query_lower
+            or "salary" in query_lower
+            or "رواتب" in query
+            or "موظف" in query
+        )
+        if is_payroll:
             return [
+                {
+                    "table_name": "PAYROLL",
+                    "owner": "HR",
+                    "comments": "Monthly payroll transactions",
+                    "columns": "EMPLOYEE_ID, EMPLOYEE_NAME, SALARY_AMOUNT, PAYMENT_DATE",
+                    "score": 0.96,
+                },
                 {
                     "table_name": "EMPLOYEES",
                     "owner": "HR",
                     "comments": "Employee master data",
-                    "score": 0.95,
+                    "columns": "EMPLOYEE_ID, NAME, DEPARTMENT, HIRE_DATE",
+                    "score": 0.89,
+                },
+            ]
+        if "order" in query_lower or "طلب" in query:
+            return [
+                {
+                    "table_name": "ORDERS",
+                    "owner": "ERP",
+                    "comments": "Sales orders / طلبات المبيعات",
+                    "score": 0.90,
                 },
             ]
         return []
@@ -84,17 +118,39 @@ def _create_mock_indexer() -> OracleSchemaIndexer:
     return indexer
 
 
+def _create_llm() -> BaseLLM:
+    """Create LLM instance based on environment configuration."""
+    if USE_UNSLOTH:
+        try:
+            from atlas.agent.unsloth_llm import UnslothLLM
+
+            print(f"Initializing Unsloth LLM from: {MODEL_PATH}")
+            llm = UnslothLLM(model_path=MODEL_PATH)
+            llm.load_model()
+            print("Unsloth LLM loaded successfully!")
+            return llm
+        except Exception as e:
+            print(f"Failed to load Unsloth LLM: {e}")
+            print("Falling back to MockLLM")
+            return MockLLM()
+    else:
+        print("Using MockLLM (set ATLAS_USE_UNSLOTH=true for real model)")
+        return MockLLM()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler - initialize agent on startup."""
     global _agent
 
-    # Initialize mock components for demo
+    # Initialize components
     connector = _create_mock_connector()
     indexer = _create_mock_indexer()
-    llm = MockLLM()
+    llm = _create_llm()
 
     _agent = OracleSQLAgent(connector=connector, indexer=indexer, llm=llm)
+
+    print(f"Atlas API initialized (Unsloth: {USE_UNSLOTH})")
 
     yield
 
@@ -125,6 +181,29 @@ async def security_status() -> dict:
     Shows: Thin Mode, Read-Only enforcement, blocked operations.
     """
     return OracleConnector.get_security_status()
+
+
+@app.get("/v1/model")
+async def model_status() -> dict:
+    """
+    Get information about the loaded LLM model.
+
+    Returns model type, path, and configuration.
+    """
+    if not _agent:
+        raise HTTPException(status_code=503, detail="Agent not initialized")
+
+    llm = _agent._llm
+
+    # Check if it's an UnslothLLM
+    if hasattr(llm, "get_model_info"):
+        return llm.get_model_info()
+    else:
+        return {
+            "model_type": "MockLLM",
+            "loaded": True,
+            "description": "Mock LLM for testing - returns predefined SQL patterns",
+        }
 
 
 @app.post("/v1/chat", response_model=ChatResponse)

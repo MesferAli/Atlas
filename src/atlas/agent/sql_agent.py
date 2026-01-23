@@ -32,18 +32,44 @@ class MockLLM(BaseLLM):
     """Mock LLM for MVP testing - returns predefined SQL based on keywords."""
 
     async def generate(self, prompt: str) -> str:
-        """Generate mock SQL based on question keywords."""
+        """Generate mock SQL based on question keywords (supports Arabic)."""
         prompt_lower = prompt.lower()
 
-        # Simple keyword-based mock responses for demo
-        if "top" in prompt_lower and "customer" in prompt_lower:
+        # Arabic keyword patterns
+        # رواتب = salaries, إجمالي = total, الشهر الماضي = last month
+        # موظفين = employees, عملاء = customers
+
+        # Salary/Payroll queries (Arabic: رواتب، إجمالي)
+        is_salary_query = (
+            "رواتب" in prompt
+            or "إجمالي" in prompt
+            or ("salary" in prompt_lower and "total" in prompt_lower)
+        )
+        if is_salary_query:
+            return """SELECT
+    SUM(SALARY_AMOUNT) AS TOTAL_SALARIES,
+    TO_CHAR(PAYMENT_DATE, 'YYYY-MM') AS PAYMENT_MONTH
+FROM HR.PAYROLL
+WHERE PAYMENT_DATE >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -1)
+  AND PAYMENT_DATE < TRUNC(SYSDATE, 'MM')
+GROUP BY TO_CHAR(PAYMENT_DATE, 'YYYY-MM')"""
+
+        # Customer queries
+        elif "top" in prompt_lower and "customer" in prompt_lower:
             return "SELECT * FROM CUSTOMERS ORDER BY TOTAL_PURCHASES DESC FETCH FIRST 5 ROWS ONLY"
+
+        # Employee/Salary queries
         elif "employee" in prompt_lower and "salary" in prompt_lower:
             return "SELECT EMPLOYEE_NAME, SALARY FROM EMPLOYEES ORDER BY SALARY DESC"
+
+        # Order queries
         elif "order" in prompt_lower and "recent" in prompt_lower:
             return "SELECT * FROM ORDERS ORDER BY ORDER_DATE DESC FETCH FIRST 10 ROWS ONLY"
-        elif "count" in prompt_lower:
+
+        # Count queries
+        elif "count" in prompt_lower or "عدد" in prompt:
             return "SELECT COUNT(*) AS TOTAL FROM CUSTOMERS"
+
         else:
             # Default: simple select from first mentioned table
             return "SELECT * FROM DUAL"
@@ -61,20 +87,20 @@ class OracleSQLAgent:
     5. Executes and returns results
     """
 
-    SYSTEM_PROMPT = """You are an Oracle SQL Expert. Your task is to write a SQL query based on \
-the user's question and the available table schemas.
-
-Rules:
-- Write ONLY SELECT queries (no INSERT, UPDATE, DELETE, DROP, etc.)
-- Use proper Oracle SQL syntax
-- Return only the SQL query, no explanations
-
-Available Tables:
-{schema_context}
-
-User Question: {question}
-
-SQL Query:"""
+    # Bilingual system prompt (Arabic/English)
+    SYSTEM_PROMPT = (
+        "أنت خبير في Oracle SQL. مهمتك كتابة استعلام SQL.\n"
+        "You are an Oracle SQL Expert. Write a SQL query.\n\n"
+        "القواعد / Rules:\n"
+        "- اكتب فقط استعلامات SELECT\n"
+        "- Write ONLY SELECT queries (no INSERT, UPDATE, DELETE, DROP)\n"
+        "- Use proper Oracle SQL syntax\n"
+        "- Return only the SQL query, no explanations\n\n"
+        "الجداول المتاحة / Available Tables:\n"
+        "{schema_context}\n\n"
+        "سؤال المستخدم / User Question: {question}\n\n"
+        "SQL Query:"
+    )
 
     def __init__(
         self,
