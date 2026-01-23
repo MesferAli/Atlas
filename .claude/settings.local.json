@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /F /PID 40772\")",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 2; netstat -ano | findstr '':8080''\")",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\m_alm\\\\Documents\\\\Atlas\\\\Pasted-Enterprise-AI\\\\Pasted-Enterprise-AI && set PYTHONPATH=C:\\\\Users\\\\m_alm\\\\Documents\\\\Atlas\\\\Pasted-Enterprise-AI\\\\Pasted-Enterprise-AI\\\\src && python -m uvicorn atlas.api.main:app --host 0.0.0.0 --port 8081\")",
+      "Bash(powershell -Command:*)",
+      "Bash(\"C:\\\\Users\\\\m_alm\\\\Documents\\\\Atlas\\\\Pasted-Enterprise-AI\\\\Pasted-Enterprise-AI\\\\run_server.bat\")"
+    ]
+  }
+}
