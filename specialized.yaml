@@ -1,0 +1,22 @@
+# --- إعدادات النموذج الأساسي (ناتج التدريب الأول) ---
+base_model: /workspace/atlas_erp/models/atlas-qwen-full/final
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+# --- إعدادات البيانات الجديدة ---
+datasets:
+  - path: Oracle_Saudi_Specialized_10k.jsonl
+    type: sharegpt
+
+# --- إعدادات التدريب الدقيق (Polishing) ---
+# معدل تعلم منخفض جداً للحفاظ على المعلومات السابقة
+learning_rate: 0.00001
+num_train_epochs: 3
+micro_batch_size: 2
+gradient_accumulation_steps: 4
+
+# --- الحفظ والتحسين ---
+output_dir: /workspace/atlas_erp/models/atlas-qwen-specialized-final
+bf16: true
+fp16: false
+flash_attention: true
