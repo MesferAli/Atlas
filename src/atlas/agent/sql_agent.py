@@ -61,7 +61,8 @@ class OracleSQLAgent:
     5. Executes and returns results
     """
 
-    SYSTEM_PROMPT = """You are an Oracle SQL Expert. Your task is to write a SQL query based on the user's question and the available table schemas.
+    SYSTEM_PROMPT = """You are an Oracle SQL Expert. Your task is to write a SQL query based on \
+the user's question and the available table schemas.
 
 Rules:
 - Write ONLY SELECT queries (no INSERT, UPDATE, DELETE, DROP, etc.)

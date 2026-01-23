@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas | لوحة التحكم الذكية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
+            <span class="text-xl font-bold text-gray-800">Atlas AI Dashboard</span>
+        </div>
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold flex items-center">
+                <span class="text-lg ml-1">✨</span> الذكاء الاصطناعي مفعل
+            </span>
+            <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="w-8 h-8 rounded-full">
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6">
+        
+        <div class="mb-8 bg-gradient-to-l from-indigo-900 to-purple-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
+            
+            <h3 class="font-bold text-2xl mb-2 flex items-center">
+                اسأل أطلس <span class="text-xs bg-white text-indigo-900 px-2 py-1 rounded mr-3">BETA</span>
+            </h3>
+            <p class="text-indigo-200 mb-6 text-sm">اكتب استعلامك باللغة العربية، وسنقوم بتحويله إلى بيانات ومرتبة حسب الأولوية.</p>
+            
+            <div class="flex space-x-4 space-x-reverse">
+                <input type="text" id="aiInput" placeholder="مثال: عطني فواتير موردين اعلى من 100 الف..." 
+                       class="w-full px-6 py-4 rounded-xl text-gray-800 focus:ring-4 focus:ring-indigo-400 outline-none shadow-inner text-lg">
+                <button onclick="askAtlas()" class="bg-indigo-500 hover:bg-indigo-400 text-white px-8 py-4 rounded-xl font-bold transition shadow-lg whitespace-nowrap">
+                    بحث ذكي 🚀
+                </button>
+            </div>
+            
+            <div id="aiResults" class="mt-6 hidden bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 fade-in">
+                </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500">حالة النظام</div>
+                <div class="text-2xl font-bold text-green-600">Secure ✅</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500">قاعدة البيانات</div>
+                <div class="text-2xl font-bold text-gray-800">Oracle 19c</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500">خوارزمية الترتيب</div>
+                <div class="text-2xl font-bold text-indigo-600">Active (X-Algo)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    async function askAtlas() {
+        const query = document.getElementById('aiInput').value;
+        const resBox = document.getElementById('aiResults');
+        
+        if(!query) return;
+
+        resBox.classList.remove('hidden');
+        resBox.innerHTML = '<div class="flex items-center animate-pulse"><div class="w-2 h-2 bg-white rounded-full mr-1"></div><div class="w-2 h-2 bg-white rounded-full mr-1"></div><div class="w-2 h-2 bg-white rounded-full"></div> <span class="mr-3">جاري المعالجة والترتيب...</span></div>';
+        
+        try {
+            const response = await fetch('/smart-search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query_text: query })
+            });
+            const data = await response.json();
+            
+            if(data.status === 'success') {
+                let html = `
+                    <div class="flex items-center justify-between mb-4 border-b border-white/20 pb-2">
+                        <span class="text-green-300 font-bold">✅ ${data.interpretation}</span>
+                        <span class="text-xs text-indigo-200 font-mono">SQL Generated</span>
+                    </div>
+                `;
+                
+                html += '<div class="overflow-x-auto"><table class="w-full text-right text-sm">';
+                html += '<thead class="text-indigo-200 border-b border-white/10"><tr>';
+                // Dynamic Headers
+                if(data.results.length > 0) {
+                    Object.keys(data.results[0]).forEach(key => {
+                        html += `<th class="pb-2">${key}</th>`;
+                    });
+                }
+                html += '</tr></thead><tbody>';
+                
+                // Rows
+                data.results.forEach(row => {
+                    html += '<tr class="border-b border-white/5">';
+                    Object.values(row).forEach(val => {
+                        html += `<td class="py-3">${val}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                resBox.innerHTML = html;
+            }
+        } catch (e) {
+            resBox.innerHTML = "❌ حدث خطأ في الاتصال";
+        }
+    }
+    </script>
+</body>
+</html>

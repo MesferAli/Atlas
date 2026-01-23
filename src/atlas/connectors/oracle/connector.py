@@ -44,20 +44,22 @@ class OracleConnector:
 
     # SQL keywords that indicate data modification (DDL/DML)
     # These are BLOCKED to ensure read-only access
-    FORBIDDEN_KEYWORDS = frozenset({
-        "INSERT",      # Data insertion
-        "UPDATE",      # Data modification
-        "DELETE",      # Data deletion
-        "DROP",        # Object deletion
-        "ALTER",       # Schema modification
-        "CREATE",      # Object creation
-        "TRUNCATE",    # Table truncation
-        "MERGE",       # Upsert operations
-        "GRANT",       # Permission changes
-        "REVOKE",      # Permission removal
-        "EXECUTE",     # Procedure execution
-        "CALL",        # Stored procedure calls
-    })
+    FORBIDDEN_KEYWORDS = frozenset(
+        {
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "DROP",
+            "ALTER",
+            "CREATE",
+            "TRUNCATE",
+            "MERGE",
+            "GRANT",
+            "REVOKE",
+            "EXECUTE",
+            "CALL",
+        }
+    )
 
     # Pattern to match forbidden keywords as whole words
     _KEYWORD_PATTERN = re.compile(
@@ -79,9 +81,8 @@ class OracleConnector:
             password: Database password
             dsn: Data Source Name (host:port/service_name)
         """
-        # Force Thin Mode - no Oracle Client required
-        oracledb.init_oracle_client(None)  # Explicitly disable thick mode
-
+        # Uses Thin Mode by default - no Oracle Client required
+        # Do NOT call init_oracle_client() to stay in thin mode
         self._user = user
         self._password = password
         self._dsn = dsn
@@ -117,8 +118,7 @@ class OracleConnector:
         if match:
             keyword = match.group(1).upper()
             raise ReadOnlyViolationError(
-                f"Query contains forbidden keyword: {keyword}. "
-                "Only SELECT queries are allowed."
+                f"Query contains forbidden keyword: {keyword}. Only SELECT queries are allowed."
             )
 
     async def execute_query(
