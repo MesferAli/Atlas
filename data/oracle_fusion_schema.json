@@ -90,5 +90,28 @@
       "min_required_role": "PAYROLL_MANAGER_ROLE",
       "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PO_HEADERS_ALL",
+    "description": "Stores purchase order headers including supplier info, amounts, and approval status. Core procurement table.",
+    "columns": [
+      "PO_HEADER_ID (PK)",
+      "SEGMENT1 (PO Number)",
+      "VENDOR_ID (FK)",
+      "VENDOR_SITE_ID",
+      "CURRENCY_CODE",
+      "TOTAL_AMOUNT",
+      "AUTHORIZATION_STATUS",
+      "APPROVED_DATE",
+      "CREATED_BY",
+      "CREATION_DATE"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "PROCUREMENT_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_PROCUREMENT_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
   }
 ]
