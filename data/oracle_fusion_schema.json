@@ -113,5 +113,388 @@
       "access_predicate": "USER_HAS_PROCUREMENT_PRIVILEGE",
       "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PO_LINES_ALL",
+    "description": "Purchase order line items with item details, quantities, and unit prices.",
+    "columns": [
+      "PO_LINE_ID (PK)",
+      "PO_HEADER_ID (FK)",
+      "LINE_NUM",
+      "ITEM_ID",
+      "ITEM_DESCRIPTION",
+      "QUANTITY",
+      "UNIT_PRICE",
+      "AMOUNT"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "PROCUREMENT_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_PROCUREMENT_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "AP_INVOICES_ALL",
+    "description": "Accounts Payable invoices from suppliers. Contains invoice amounts, payment terms, and status.",
+    "columns": [
+      "INVOICE_ID (PK)",
+      "INVOICE_NUM",
+      "VENDOR_ID (FK)",
+      "INVOICE_DATE",
+      "INVOICE_AMOUNT",
+      "AMOUNT_PAID",
+      "PAYMENT_STATUS_FLAG",
+      "CURRENCY_CODE",
+      "DUE_DATE"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "AP_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_AP_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "AP_PAYMENTS_ALL",
+    "description": "Payment records for supplier invoices. Contains bank account info and payment amounts. SENSITIVE.",
+    "columns": [
+      "PAYMENT_ID (PK)",
+      "PAYMENT_NUM",
+      "VENDOR_ID (FK)",
+      "PAYMENT_AMOUNT",
+      "PAYMENT_DATE",
+      "BANK_ACCOUNT_ID",
+      "PAYMENT_METHOD_CODE",
+      "STATUS"
+    ],
+    "security_metadata": {
+      "classification": "SECRET",
+      "min_required_role": "AP_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_PAYMENT_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "AR_CUSTOMERS",
+    "description": "Customer master data for Accounts Receivable. Contains customer details and credit info.",
+    "columns": [
+      "CUSTOMER_ID (PK)",
+      "CUSTOMER_NUMBER",
+      "CUSTOMER_NAME",
+      "CUSTOMER_TYPE",
+      "CREDIT_LIMIT",
+      "TAX_REGISTRATION_NUMBER",
+      "STATUS"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "AR_CLERK_ROLE",
+      "access_predicate": "USER_HAS_AR_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "AR_INVOICES",
+    "description": "Customer invoices and receivables. Contains amounts owed by customers.",
+    "columns": [
+      "INVOICE_ID (PK)",
+      "INVOICE_NUMBER",
+      "CUSTOMER_ID (FK)",
+      "INVOICE_DATE",
+      "INVOICE_AMOUNT",
+      "AMOUNT_DUE_REMAINING",
+      "DUE_DATE",
+      "STATUS"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "AR_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_AR_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "GL_JE_HEADERS",
+    "description": "General Ledger journal entry headers. Core financial posting records.",
+    "columns": [
+      "JE_HEADER_ID (PK)",
+      "LEDGER_ID",
+      "JE_BATCH_ID",
+      "PERIOD_NAME",
+      "JE_CATEGORY",
+      "JE_SOURCE",
+      "STATUS",
+      "TOTAL_DEBIT",
+      "TOTAL_CREDIT"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "GL_ACCOUNTANT_ROLE",
+      "access_predicate": "USER_HAS_GL_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "GL_JE_LINES",
+    "description": "General Ledger journal entry line details with account codes and amounts.",
+    "columns": [
+      "JE_LINE_NUM (PK)",
+      "JE_HEADER_ID (FK)",
+      "CODE_COMBINATION_ID",
+      "ENTERED_DR",
+      "ENTERED_CR",
+      "ACCOUNTED_DR",
+      "ACCOUNTED_CR",
+      "DESCRIPTION"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "GL_ACCOUNTANT_ROLE",
+      "access_predicate": "USER_HAS_GL_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "GL_BALANCES",
+    "description": "Account balances by period. Used for financial reporting and analysis.",
+    "columns": [
+      "LEDGER_ID (PK)",
+      "CODE_COMBINATION_ID (PK)",
+      "PERIOD_NAME (PK)",
+      "CURRENCY_CODE",
+      "PERIOD_NET_DR",
+      "PERIOD_NET_CR",
+      "BEGIN_BALANCE_DR",
+      "BEGIN_BALANCE_CR"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "GL_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_GL_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "POZ_SUPPLIERS",
+    "description": "Supplier/Vendor master data. Contains supplier details, tax info, and payment terms.",
+    "columns": [
+      "VENDOR_ID (PK)",
+      "VENDOR_NAME",
+      "VENDOR_NUMBER",
+      "VENDOR_TYPE",
+      "TAX_REGISTRATION_NUMBER",
+      "PAYMENT_TERMS_ID",
+      "STATUS"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "PROCUREMENT_CLERK_ROLE",
+      "access_predicate": "USER_HAS_SUPPLIER_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "POZ_SUPPLIER_SITES",
+    "description": "Supplier site/location details including bank accounts. CONTAINS SENSITIVE BANK INFO.",
+    "columns": [
+      "VENDOR_SITE_ID (PK)",
+      "VENDOR_ID (FK)",
+      "VENDOR_SITE_CODE",
+      "ADDRESS_LINE1",
+      "CITY",
+      "COUNTRY",
+      "BANK_ACCOUNT_NUM",
+      "IBAN"
+    ],
+    "security_metadata": {
+      "classification": "SECRET",
+      "min_required_role": "PROCUREMENT_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_SUPPLIER_BANK_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "HR_LOCATIONS_ALL",
+    "description": "Organization locations and addresses. Used for employee work locations.",
+    "columns": [
+      "LOCATION_ID (PK)",
+      "LOCATION_CODE",
+      "LOCATION_NAME",
+      "ADDRESS_LINE_1",
+      "CITY",
+      "REGION",
+      "COUNTRY"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "PER_EMPLOYEE_ROLE",
+      "access_predicate": "PUBLIC",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PER_JOBS_F",
+    "description": "Job definitions including job codes, titles, and grades.",
+    "columns": [
+      "JOB_ID (PK)",
+      "JOB_CODE",
+      "NAME",
+      "JOB_FAMILY_ID",
+      "EFFECTIVE_START_DATE",
+      "EFFECTIVE_END_DATE"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "PER_EMPLOYEE_ROLE",
+      "access_predicate": "PUBLIC",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PER_GRADES_F",
+    "description": "Grade definitions for compensation and job levels.",
+    "columns": [
+      "GRADE_ID (PK)",
+      "GRADE_CODE",
+      "NAME",
+      "EFFECTIVE_START_DATE",
+      "EFFECTIVE_END_DATE"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "LINE_MANAGER_ROLE",
+      "access_predicate": "PUBLIC",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PER_ABSENCE_ENTRIES",
+    "description": "Employee absence and leave records. Contains leave types and durations.",
+    "columns": [
+      "ABSENCE_ENTRY_ID (PK)",
+      "PERSON_ID (FK)",
+      "ABSENCE_TYPE_ID",
+      "START_DATE",
+      "END_DATE",
+      "DURATION",
+      "APPROVAL_STATUS"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "LINE_MANAGER_ROLE",
+      "access_predicate": "PERSON_ID = :CURRENT_USER_ID OR USER_IS_MANAGER",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PER_PERFORMANCE_RATINGS",
+    "description": "Employee performance review ratings. CONFIDENTIAL HR data.",
+    "columns": [
+      "PERFORMANCE_RATING_ID (PK)",
+      "PERSON_ID (FK)",
+      "REVIEW_PERIOD",
+      "RATING_LEVEL",
+      "MANAGER_COMMENTS",
+      "REVIEW_DATE"
+    ],
+    "security_metadata": {
+      "classification": "SECRET",
+      "min_required_role": "HR_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_HR_ADMIN_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "INV_ITEM_MASTER",
+    "description": "Inventory item master data. Contains item details, costs, and stock levels.",
+    "columns": [
+      "INVENTORY_ITEM_ID (PK)",
+      "ITEM_NUMBER",
+      "ITEM_DESCRIPTION",
+      "ITEM_TYPE",
+      "UNIT_OF_MEASURE",
+      "LIST_PRICE",
+      "STANDARD_COST"
+    ],
+    "security_metadata": {
+      "classification": "INTERNAL",
+      "min_required_role": "INV_CLERK_ROLE",
+      "access_predicate": "USER_HAS_INV_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "INV_ONHAND_QUANTITIES",
+    "description": "Current inventory stock levels by item and location.",
+    "columns": [
+      "INVENTORY_ITEM_ID (PK)",
+      "ORGANIZATION_ID (PK)",
+      "SUBINVENTORY_CODE",
+      "LOCATOR_ID",
+      "ON_HAND_QUANTITY",
+      "LAST_UPDATE_DATE"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "INV_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_INV_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "VIEW",
+    "name": "FIN_PROFIT_LOSS_V",
+    "description": "Profit and Loss statement view. Aggregates revenue and expenses by period.",
+    "columns": [
+      "LEDGER_ID",
+      "PERIOD_NAME",
+      "ACCOUNT_TYPE",
+      "ACCOUNT_DESCRIPTION",
+      "PERIOD_AMOUNT",
+      "YTD_AMOUNT"
+    ],
+    "security_metadata": {
+      "classification": "SECRET",
+      "min_required_role": "CFO_ROLE",
+      "access_predicate": "USER_HAS_EXECUTIVE_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "VIEW",
+    "name": "HR_HEADCOUNT_V",
+    "description": "Employee headcount by department and location. Used for HR reporting.",
+    "columns": [
+      "ORGANIZATION_ID",
+      "ORGANIZATION_NAME",
+      "LOCATION_ID",
+      "LOCATION_NAME",
+      "HEADCOUNT",
+      "AS_OF_DATE"
+    ],
+    "security_metadata": {
+      "classification": "RESTRICTED",
+      "min_required_role": "HR_ANALYST_ROLE",
+      "access_predicate": "USER_HAS_HR_REPORTING_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
   }
 ]
