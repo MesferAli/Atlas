@@ -12,9 +12,10 @@
       "FULL_NAME"
     ],
     "security_metadata": {
-      "classification": "CONFIDENTIAL",
+      "classification": "INTERNAL",
       "min_required_role": "PER_EMPLOYEE_ROLE",
-      "access_predicate": "PERSON_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE"
+      "access_predicate": "PERSON_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
   },
   {
@@ -31,9 +32,10 @@
       "LOCATION_ID"
     ],
     "security_metadata": {
-      "classification": "INTERNAL",
+      "classification": "RESTRICTED",
       "min_required_role": "LINE_MANAGER_ROLE",
-      "access_predicate": "MANAGER_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE"
+      "access_predicate": "MANAGER_ID = :CURRENT_USER_ID OR USER_HAS_HR_ADMIN_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
   },
   {
@@ -50,9 +52,10 @@
       "SALARY_BASIS_ID"
     ],
     "security_metadata": {
-      "classification": "RESTRICTED",
+      "classification": "SECRET",
       "min_required_role": "PAYROLL_MANAGER_ROLE",
-      "access_predicate": "USER_HAS_PAYROLL_PRIVILEGE"
+      "access_predicate": "USER_HAS_PAYROLL_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
   },
   {
@@ -66,20 +69,49 @@
       "START_DATE"
     ],
     "security_metadata": {
-      "classification": "RESTRICTED",
+      "classification": "SECRET",
       "min_required_role": "PAYROLL_ADMIN_ROLE",
-      "access_predicate": "NONE"
+      "access_predicate": "NONE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
   },
   {
     "object_type": "FUNCTION",
     "name": "GET_PAY_AMOUNT",
     "description": "Calculates the net pay or specific element value for a given assignment and date range.",
-    "parameters": ["ASSIGNMENT_ID", "ELEMENT_TYPE_ID", "EFFECTIVE_DATE"],
+    "parameters": [
+      "ASSIGNMENT_ID",
+      "ELEMENT_TYPE_ID",
+      "EFFECTIVE_DATE"
+    ],
     "return_type": "NUMBER",
     "security_metadata": {
+      "classification": "SECRET",
+      "min_required_role": "PAYROLL_MANAGER_ROLE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
+    }
+  },
+  {
+    "object_type": "TABLE",
+    "name": "PO_HEADERS_ALL",
+    "description": "Stores purchase order headers including supplier info, amounts, and approval status. Core procurement table.",
+    "columns": [
+      "PO_HEADER_ID (PK)",
+      "SEGMENT1 (PO Number)",
+      "VENDOR_ID (FK)",
+      "VENDOR_SITE_ID",
+      "CURRENCY_CODE",
+      "TOTAL_AMOUNT",
+      "AUTHORIZATION_STATUS",
+      "APPROVED_DATE",
+      "CREATED_BY",
+      "CREATION_DATE"
+    ],
+    "security_metadata": {
       "classification": "RESTRICTED",
-      "min_required_role": "PAYROLL_MANAGER_ROLE"
+      "min_required_role": "PROCUREMENT_MANAGER_ROLE",
+      "access_predicate": "USER_HAS_PROCUREMENT_PRIVILEGE",
+      "compliance_standard": "NDMO_DATA_CLASS_POLICY_V1"
     }
   }
 ]

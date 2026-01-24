@@ -12,14 +12,23 @@ Usage:
     # Server mode (Qdrant server)
     python scripts/inject_moat.py --qdrant-host localhost --qdrant-port 6333
 
+    # Offline mode (no HuggingFace connection required)
+    python scripts/inject_moat.py --qdrant-path ./qdrant_data --offline
+
+    # Use local model path
+    python scripts/inject_moat.py --model-path /path/to/local/model
+
 Environment Variables:
     ATLAS_SCHEMA_PATH: Path to oracle_fusion_schema.json
     ATLAS_QDRANT_PATH: Path to Qdrant storage directory (local mode)
     ATLAS_QDRANT_HOST: Qdrant server host (server mode)
     ATLAS_QDRANT_PORT: Qdrant server port (server mode)
+    ATLAS_MODEL_PATH: Path to local embedding model
+    HF_HUB_OFFLINE: Set to 1 to use offline mode
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -27,12 +36,90 @@ from pathlib import Path
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
-from sentence_transformers import SentenceTransformer
 
 # Configuration
 COLLECTION_NAME = "oracle_schema"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 EMBEDDING_DIM = 384
+OFFLINE_EMBEDDING_DIM = 256  # Dimension for fallback hash-based embedding
+
+
+class OfflineEmbedder:
+    """
+    Fallback embedder using hash-based vectors when HuggingFace is unavailable.
+    Uses a combination of character n-grams and word hashing for semantic similarity.
+    """
+
+    def __init__(self, dim: int = OFFLINE_EMBEDDING_DIM):
+        self.dim = dim
+        print(f"  Using offline hash-based embedder (dim={dim})")
+
+    def encode(self, text: str) -> list:
+        """Generate a deterministic embedding from text using multiple hash functions."""
+        import numpy as np
+
+        text = text.lower().strip()
+        vector = np.zeros(self.dim, dtype=np.float32)
+
+        # Word-level hashing
+        words = text.split()
+        for word in words:
+            h = int(hashlib.md5(word.encode()).hexdigest(), 16)
+            idx = h % self.dim
+            vector[idx] += 1.0
+
+        # Character trigram hashing for better semantic capture
+        for i in range(len(text) - 2):
+            trigram = text[i:i+3]
+            h = int(hashlib.sha256(trigram.encode()).hexdigest(), 16)
+            idx = h % self.dim
+            vector[idx] += 0.5
+
+        # Normalize to unit vector
+        norm = np.linalg.norm(vector)
+        if norm > 0:
+            vector = vector / norm
+
+        return vector.tolist()
+
+
+def load_embedder(model_path: str = None, offline: bool = False):
+    """
+    Load the embedding model with fallback options.
+
+    Args:
+        model_path: Path to local model directory
+        offline: If True, use offline hash-based embedder
+
+    Returns:
+        Tuple of (embedder, embedding_dimension)
+    """
+    if offline:
+        print("  Offline mode enabled - using hash-based embedder")
+        return OfflineEmbedder(OFFLINE_EMBEDDING_DIM), OFFLINE_EMBEDDING_DIM
+
+    # Try loading from local path first
+    if model_path and Path(model_path).exists():
+        try:
+            from sentence_transformers import SentenceTransformer
+            print(f"  Loading model from local path: {model_path}")
+            return SentenceTransformer(model_path), EMBEDDING_DIM
+        except Exception as e:
+            print(f"  Warning: Failed to load local model: {e}")
+
+    # Try loading from HuggingFace with offline mode check
+    try:
+        # Set offline mode if HF_HUB_OFFLINE is set
+        if os.getenv("HF_HUB_OFFLINE", "0") == "1":
+            print("  HF_HUB_OFFLINE=1, using cached model only")
+
+        from sentence_transformers import SentenceTransformer
+        print(f"  Loading model: {EMBEDDING_MODEL}")
+        return SentenceTransformer(EMBEDDING_MODEL), EMBEDDING_DIM
+    except Exception as e:
+        print(f"  Warning: Failed to load transformer model: {e}")
+        print("  Falling back to offline hash-based embedder")
+        return OfflineEmbedder(OFFLINE_EMBEDDING_DIM), OFFLINE_EMBEDDING_DIM
 
 # Default paths
 DEFAULT_SCHEMA_PATH = "/workspace/atlas_erp/data/oracle_fusion_schema.json"
@@ -87,17 +174,17 @@ def build_document(obj: dict) -> str:
     return " | ".join(parts)
 
 
-def create_qdrant_collection(client: QdrantClient) -> None:
+def create_qdrant_collection(client: QdrantClient, embedding_dim: int) -> None:
     """Create or recreate the Qdrant collection."""
     if client.collection_exists(COLLECTION_NAME):
         print(f"Deleting existing collection: {COLLECTION_NAME}")
         client.delete_collection(COLLECTION_NAME)
 
-    print(f"Creating collection: {COLLECTION_NAME}")
+    print(f"Creating collection: {COLLECTION_NAME} (dim={embedding_dim})")
     client.create_collection(
         collection_name=COLLECTION_NAME,
         vectors_config=VectorParams(
-            size=EMBEDDING_DIM,
+            size=embedding_dim,
             distance=Distance.COSINE,
         ),
     )
@@ -106,7 +193,7 @@ def create_qdrant_collection(client: QdrantClient) -> None:
 def inject_schema(
     schema: list[dict],
     client: QdrantClient,
-    embedder: SentenceTransformer,
+    embedder,
 ) -> int:
     """
     Inject schema objects into Qdrant with security metadata.
@@ -127,6 +214,8 @@ def inject_schema(
 
         # Generate embedding
         embedding = embedder.encode(document)
+        if not isinstance(embedding, list):
+            embedding = embedding.tolist()
 
         # Extract security metadata
         security = obj.get("security_metadata", {})
@@ -154,7 +243,7 @@ def inject_schema(
         # Create point with integer ID (more compatible)
         point = PointStruct(
             id=idx,
-            vector=embedding.tolist(),
+            vector=embedding,
             payload=payload,
         )
         points.append(point)
@@ -173,7 +262,7 @@ def inject_schema(
     return len(points)
 
 
-def verify_collection(client: QdrantClient) -> None:
+def verify_collection(client: QdrantClient, embedder) -> None:
     """Verify the collection was created correctly."""
     info = client.get_collection(COLLECTION_NAME)
     print("\nCollection Stats:")
@@ -181,8 +270,9 @@ def verify_collection(client: QdrantClient) -> None:
 
     # Sample query to verify
     print("\nSample search for 'salary':")
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
-    query_vector = embedder.encode("salary employee payment").tolist()
+    query_vector = embedder.encode("salary employee payment")
+    if not isinstance(query_vector, list):
+        query_vector = query_vector.tolist()
 
     results = client.query_points(
         collection_name=COLLECTION_NAME,
@@ -221,6 +311,17 @@ def main():
         default=int(os.getenv("ATLAS_QDRANT_PORT", DEFAULT_QDRANT_PORT)),
         help="Qdrant server port (server mode)",
     )
+    parser.add_argument(
+        "--model-path",
+        default=os.getenv("ATLAS_MODEL_PATH"),
+        help="Path to local embedding model directory",
+    )
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        default=os.getenv("HF_HUB_OFFLINE", "0") == "1",
+        help="Use offline hash-based embedder (no HuggingFace connection)",
+    )
     args = parser.parse_args()
 
     # Determine connection mode
@@ -236,6 +337,14 @@ def main():
         args.qdrant_path = DEFAULT_QDRANT_PATH
         qdrant_info = args.qdrant_path
 
+    # Determine embedding mode
+    if args.offline:
+        embed_mode = "OFFLINE (hash-based)"
+    elif args.model_path:
+        embed_mode = f"LOCAL ({args.model_path})"
+    else:
+        embed_mode = f"ONLINE ({EMBEDDING_MODEL})"
+
     print("=" * 60)
     print("Data Moat Injection - Oracle Fusion Schema to Qdrant")
     print("=" * 60)
@@ -243,33 +352,36 @@ def main():
     print(f"Qdrant Mode: {mode.upper()}")
     print(f"Qdrant:      {qdrant_info}")
     print(f"Collection:  {COLLECTION_NAME}")
-    print(f"Model:       {EMBEDDING_MODEL}")
+    print(f"Embedding:   {embed_mode}")
     print("=" * 60)
 
     # Load schema
-    print("\n[1/4] Loading schema...")
+    print("\n[1/5] Loading schema...")
     schema = load_schema(args.schema_path)
 
+    # Load embedding model
+    print("\n[2/5] Loading embedding model...")
+    embedder, embedding_dim = load_embedder(args.model_path, args.offline)
+
     # Initialize Qdrant
-    print("\n[2/4] Initializing Qdrant...")
+    print("\n[3/5] Initializing Qdrant...")
     if mode == "server":
         client = QdrantClient(host=args.qdrant_host, port=args.qdrant_port)
     else:
         client = QdrantClient(path=args.qdrant_path)
 
     # Create collection
-    print("\n[3/4] Creating collection...")
-    create_qdrant_collection(client)
+    print("\n[4/5] Creating collection...")
+    create_qdrant_collection(client, embedding_dim)
 
-    # Load embedding model
-    print("\n[4/4] Injecting schema into Qdrant...")
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
+    # Inject schema
+    print("\n[5/5] Injecting schema into Qdrant...")
     count = inject_schema(schema, client, embedder)
 
     print(f"\nSuccessfully injected {count} objects into Qdrant!")
 
     # Verify
-    verify_collection(client)
+    verify_collection(client, embedder)
 
     print("\n" + "=" * 60)
     print("Data Moat injection complete!")
