@@ -1,4 +1,6 @@
-import { AbsoluteFill, Audio, Sequence, staticFile, useVideoConfig } from "remotion";
+import React from "react";
+import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
+import { z } from "zod";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { PainScene } from "./scenes/PainScene";
 import { SolutionScene } from "./scenes/SolutionScene";
@@ -6,17 +8,18 @@ import { ResultScene } from "./scenes/ResultScene";
 import { OutroScene } from "./scenes/OutroScene";
 import { GlobalStyles } from "./components/GlobalStyles";
 
-interface TimingConfig {
-  problemStart: number;
-  painStart: number;
-  solutionStart: number;
-  resultStart: number;
-  outroStart: number;
-}
+// Zod schema for props validation
+export const jazzaamVideoSchema = z.object({
+  timing: z.object({
+    problemStart: z.number(),
+    painStart: z.number(),
+    solutionStart: z.number(),
+    resultStart: z.number(),
+    outroStart: z.number(),
+  }),
+});
 
-interface JazzaamVideoProps {
-  timing: TimingConfig;
-}
+type JazzaamVideoProps = z.infer<typeof jazzaamVideoSchema>;
 
 export const JazzaamVideo: React.FC<JazzaamVideoProps> = ({ timing }) => {
   const { fps, durationInFrames } = useVideoConfig();
@@ -56,9 +59,6 @@ export const JazzaamVideo: React.FC<JazzaamVideoProps> = ({ timing }) => {
     >
       <GlobalStyles />
 
-      {/* Background Music */}
-      <Audio src={staticFile("audio/beat.mp3")} volume={0.3} />
-
       {/* Scene 1: Problem - The Hook */}
       <Sequence from={scenes.problem.start} durationInFrames={scenes.problem.duration}>
         <ProblemScene />
@@ -67,13 +67,11 @@ export const JazzaamVideo: React.FC<JazzaamVideoProps> = ({ timing }) => {
       {/* Scene 2: Pain - The Struggle */}
       <Sequence from={scenes.pain.start} durationInFrames={scenes.pain.duration}>
         <PainScene />
-        <Audio src={staticFile("audio/pop.mp3")} volume={0.5} />
       </Sequence>
 
       {/* Scene 3: Solution - Jazzaam Appears */}
       <Sequence from={scenes.solution.start} durationInFrames={scenes.solution.duration}>
         <SolutionScene />
-        <Audio src={staticFile("audio/success.mp3")} volume={0.4} />
       </Sequence>
 
       {/* Scene 4: Result - The Transformation */}

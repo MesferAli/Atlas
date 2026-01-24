@@ -1,5 +1,6 @@
+import React from "react";
 import { Composition } from "remotion";
-import { JazzaamVideo } from "./Composition";
+import { JazzaamVideo, jazzaamVideoSchema } from "./Composition";
 
 // Video configuration
 const FPS = 30;
@@ -15,8 +16,8 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={1920}
         height={1080}
+        schema={jazzaamVideoSchema}
         defaultProps={{
-          // Audio timing configuration (in seconds)
           timing: {
             problemStart: 0,
             painStart: 8,
