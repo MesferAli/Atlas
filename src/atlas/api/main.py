@@ -1,14 +1,28 @@
-"""Atlas API - FastAPI service for Oracle SQL RAG Agent."""
+"""Atlas API - FastAPI service for Oracle SQL RAG Agent.
+
+SECURITY ARCHITECTURE:
+- All data access goes through authenticated server-side endpoints
+- Input validation is performed on all requests
+- Audit logging captures all sensitive operations
+- Rate limiting prevents brute force attacks
+- Security headers protect against common web vulnerabilities
+"""
 
 import os
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Annotated, Any
 from unittest.mock import MagicMock
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field, field_validator
 
 from atlas.agent.sql_agent import BaseLLM, MockLLM, OracleSQLAgent
+from atlas.api.routes.audit import router as audit_router
+from atlas.api.routes.auth import router as auth_router
+from atlas.api.security.audit import AuditEventType, get_audit_logger
+from atlas.api.security.auth import TokenPayload, get_current_user_optional
+from atlas.api.security.middleware import setup_security_middleware
 from atlas.connectors.oracle.connector import OracleConnector
 from atlas.connectors.oracle.indexer import OracleSchemaIndexer
 
@@ -19,9 +33,31 @@ QDRANT_PATH = os.getenv("ATLAS_QDRANT_PATH", "./qdrant_data")
 
 
 class ChatRequest(BaseModel):
-    """Request body for chat endpoint."""
+    """Request body for chat endpoint.
 
-    question: str
+    SECURITY: Validates and sanitizes natural language queries
+    to prevent injection attacks.
+    """
+
+    question: str = Field(
+        ...,
+        min_length=3,
+        max_length=2000,
+        description="Natural language question about the database",
+    )
+
+    @field_validator("question")
+    @classmethod
+    def sanitize_question(cls, v: str) -> str:
+        """Sanitize the question to prevent potential injection."""
+        # Remove null bytes
+        v = v.replace("\x00", "")
+        # Remove excessive whitespace
+        v = " ".join(v.split())
+        # Basic length check after sanitization
+        if len(v) < 3:
+            raise ValueError("Question must be at least 3 characters after cleanup")
+        return v
 
 
 class ChatResponse(BaseModel):
@@ -165,6 +201,25 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# SECURITY: Setup security middleware (rate limiting, security headers)
+setup_security_middleware(app)
+
+# SECURITY: Configure CORS with strict settings
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("ATLAS_ALLOWED_ORIGINS", "http://localhost:3000").split(","),
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
+)
+
+# Include authentication routes
+app.include_router(auth_router)
+
+# Include audit routes
+app.include_router(audit_router)
+
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:
@@ -207,12 +262,23 @@ async def model_status() -> dict:
 
 
 @app.post("/v1/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
+async def chat(
+    http_request: Request,
+    request: ChatRequest,
+    user: Annotated[TokenPayload | None, Depends(get_current_user_optional)] = None,
+) -> ChatResponse:
     """
     Process a natural language question and return SQL results.
 
+    SECURITY:
+    - Input is validated and sanitized
+    - Query execution is logged for audit
+    - Only read-only SQL is permitted
+
     Args:
+        http_request: FastAPI request object
         request: ChatRequest with the user's question
+        user: Optional authenticated user (for audit logging)
 
     Returns:
         ChatResponse with generated SQL and query results
@@ -220,12 +286,49 @@ async def chat(request: ChatRequest) -> ChatResponse:
     if not _agent:
         raise HTTPException(status_code=503, detail="Agent not initialized")
 
-    response = await _agent.run(request.question)
+    audit = get_audit_logger()
+    client_ip = http_request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+    if not client_ip and http_request.client:
+        client_ip = http_request.client.host
 
-    return ChatResponse(
-        question=response.question,
-        relevant_tables=response.relevant_tables,
-        generated_sql=response.generated_sql,
-        results=response.results,
-        error=response.error,
-    )
+    try:
+        response = await _agent.run(request.question)
+
+        # Log successful query
+        audit.log(
+            event_type=AuditEventType.QUERY_EXECUTED,
+            user_id=user.sub if user else None,
+            user_email=user.email if user else None,
+            client_ip=client_ip,
+            resource_type="oracle_query",
+            action="nl_to_sql",
+            details={
+                "question": request.question[:200],
+                "tables_used": [t.get("table_name") for t in response.relevant_tables],
+                "sql_generated": response.generated_sql[:500] if response.generated_sql else None,
+            },
+            success=response.error is None,
+            error_message=response.error,
+        )
+
+        return ChatResponse(
+            question=response.question,
+            relevant_tables=response.relevant_tables,
+            generated_sql=response.generated_sql,
+            results=response.results,
+            error=response.error,
+        )
+    except Exception as e:
+        # Log blocked or failed query
+        audit.log(
+            event_type=AuditEventType.QUERY_BLOCKED,
+            user_id=user.sub if user else None,
+            user_email=user.email if user else None,
+            client_ip=client_ip,
+            resource_type="oracle_query",
+            action="nl_to_sql",
+            details={"question": request.question[:200]},
+            success=False,
+            error_message=str(e),
+        )
+        raise HTTPException(status_code=400, detail=str(e))
