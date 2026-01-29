@@ -2,7 +2,19 @@
 
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from atlas.api.security.token_blacklist import TokenBlacklist
+
+
+@pytest.fixture(autouse=True)
+def _reset_blacklist():
+    """Reset singletons before each test."""
+    from atlas.api.security import redis_backend, token_blacklist
+
+    redis_backend._token_bl = None
+    token_blacklist._token_blacklist = None
+    yield
 
 
 class TestTokenBlacklist:

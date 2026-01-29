@@ -7,11 +7,15 @@ SECURITY: VERIFY SIGNATURES - NEVER trust webhook payloads directly.
 - Timestamps are checked to prevent replay attacks
 """
 
+import asyncio
 import hashlib
 import hmac
+import logging
 import os
 import time
 from typing import Any
+
+logger = logging.getLogger("atlas.webhooks")
 
 
 class WebhookVerificationError(Exception):
@@ -259,3 +263,69 @@ class WebhookHandler:
 
             verify_webhook_signature(payload, signature, secret)
             return json.loads(payload.decode("utf-8"))
+
+
+async def dispatch_webhook(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    max_retries: int = 4,
+    base_delay: float = 2.0,
+    timeout: float = 10.0,
+    headers: dict[str, str] | None = None,
+) -> bool:
+    """
+    Send a webhook with exponential backoff retry.
+
+    SECURITY: Uses HTTPS by default. Logs all attempts for audit.
+
+    Args:
+        url: Target webhook URL
+        payload: JSON-serializable payload
+        max_retries: Maximum retry attempts (default 4)
+        base_delay: Base delay in seconds, doubled each retry
+        timeout: Request timeout in seconds
+        headers: Additional HTTP headers
+
+    Returns:
+        True if delivery succeeded, False after all retries exhausted
+    """
+    import json
+
+    body = json.dumps(payload).encode("utf-8")
+    send_headers = {"Content-Type": "application/json"}
+    if headers:
+        send_headers.update(headers)
+
+    for attempt in range(max_retries + 1):
+        try:
+            # Use urllib to avoid external dependency
+            import urllib.request
+
+            req = urllib.request.Request(
+                url,
+                data=body,
+                headers=send_headers,
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if 200 <= resp.status < 300:
+                    logger.info("Webhook delivered to %s (attempt %d)", url, attempt + 1)
+                    return True
+                logger.warning(
+                    "Webhook %s returned %d (attempt %d/%d)",
+                    url, resp.status, attempt + 1, max_retries + 1,
+                )
+        except Exception as e:
+            logger.warning(
+                "Webhook %s failed (attempt %d/%d): %s",
+                url, attempt + 1, max_retries + 1, e,
+            )
+
+        if attempt < max_retries:
+            delay = base_delay * (2 ** attempt)
+            logger.info("Retrying webhook in %.1fs...", delay)
+            await asyncio.sleep(delay)
+
+    logger.error("Webhook delivery to %s exhausted all %d retries", url, max_retries + 1)
+    return False

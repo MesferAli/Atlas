@@ -18,14 +18,21 @@ from atlas.api.main import app  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _reset_rate_limits():
-    """Clear rate limit counters before each test."""
+    """Clear rate limit counters and token blacklist before each test."""
     from atlas.api.security import middleware as mw
+    from atlas.api.security import redis_backend, token_blacklist
 
-    # Walk the ASGI middleware stack to find the RateLimitMiddleware instance
+    # Reset backend singletons
+    redis_backend._rate_limiter = None
+    redis_backend._token_bl = None
+    token_blacklist._token_blacklist = None
+
+    # Get a fresh rate limiter and update the middleware instance reference
+    fresh_rl = redis_backend.get_rate_limiter()
     inner = getattr(app, "middleware_stack", None)
     while inner is not None:
         if isinstance(inner, mw.RateLimitMiddleware):
-            inner.request_counts.clear()
+            inner._backend = fresh_rl
             break
         inner = getattr(inner, "app", None)
     yield

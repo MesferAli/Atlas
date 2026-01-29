@@ -76,6 +76,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.auth_requests_per_minute = auth_requests_per_minute
         self.request_counts: dict[str, list[float]] = defaultdict(list)
 
+        # Try to use Redis-backed rate limiter
+        from atlas.api.security.redis_backend import get_rate_limiter
+
+        self._backend = get_rate_limiter()
+
     def _get_client_ip(self, request: Request) -> str:
         """Extract client IP, considering proxies."""
         # Check for forwarded IP (behind load balancer/proxy)
@@ -113,7 +118,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Use per-user key when authenticated, otherwise per-IP
         user_id = self._extract_user_id(request)
         rate_key = f"user:{user_id}" if user_id else f"ip:{client_ip}"
-        self._clean_old_requests(rate_key)
 
         # Determine rate limit based on endpoint
         is_auth_endpoint = request.url.path.startswith("/api/auth")
@@ -121,8 +125,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             self.auth_requests_per_minute if is_auth_endpoint else self.requests_per_minute
         )
 
-        # Check rate limit
-        if len(self.request_counts[rate_key]) >= limit:
+        # Use backend (Redis or in-memory) for rate limiting
+        count = self._backend.record_request(rate_key, window_seconds=60)
+        if count > limit:
             return Response(
                 content='{"detail": "Rate limit exceeded. Please try again later."}',
                 status_code=429,
@@ -131,9 +136,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     "Retry-After": "60",
                 },
             )
-
-        # Record this request
-        self.request_counts[rate_key].append(time.time())
 
         return await call_next(request)
 
@@ -178,6 +180,9 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         if request.url.path.startswith("/api/") or request.url.path.startswith("/v1/"):
             response.headers["Cache-Control"] = "no-store, max-age=0"
             response.headers["Pragma"] = "no-cache"
+
+        # API versioning header
+        response.headers["X-API-Version"] = "1.0"
 
         return response
 

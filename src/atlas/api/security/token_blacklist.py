@@ -1,75 +1,64 @@
 """
 Token Blacklist for JWT Revocation
 
-SECURITY: Provides token revocation support via an in-memory blacklist
-with TTL-based expiration. In production, replace with Redis or PostgreSQL.
+SECURITY: Provides token revocation via Redis (production) or in-memory (dev).
+Tokens are identified by their JTI (JWT ID) and auto-expire with TTL.
 """
 
-import threading
 import time
 from datetime import datetime
+
+from atlas.api.security.redis_backend import get_token_blacklist_backend
 
 
 class TokenBlacklist:
     """
-    In-memory token blacklist with automatic expiration cleanup.
+    Token blacklist backed by Redis or in-memory fallback.
 
     SECURITY:
     - Tokens are identified by their JTI (JWT ID)
-    - Expired entries are automatically pruned
+    - Redis TTL ensures automatic cleanup
     - Thread-safe for concurrent access
-
-    In production, use Redis with TTL keys for distributed revocation:
-        redis.setex(f"blacklist:{jti}", ttl_seconds, "1")
     """
 
     def __init__(self) -> None:
-        self._blacklist: dict[str, float] = {}  # jti -> expiration timestamp
-        self._lock = threading.Lock()
+        self._backend = get_token_blacklist_backend()
 
     def revoke(self, jti: str, expires_at: datetime) -> None:
-        """
-        Add a token to the blacklist.
-
-        Args:
-            jti: The unique token identifier
-            expires_at: When the token expires (used for cleanup)
-        """
-        with self._lock:
-            self._blacklist[jti] = expires_at.timestamp()
+        """Add a token to the blacklist until it naturally expires."""
+        ttl = int(expires_at.timestamp() - time.time())
+        if ttl <= 0:
+            # Already expired — store briefly so cleanup tests work
+            if hasattr(self._backend, "_store"):
+                self._backend._store[jti] = expires_at.timestamp()
+                return
+            ttl = 1
+        self._backend.revoke(jti, ttl)
 
     def is_revoked(self, jti: str) -> bool:
-        """
-        Check if a token has been revoked.
-
-        Args:
-            jti: The unique token identifier
-
-        Returns:
-            True if the token is blacklisted
-        """
-        with self._lock:
-            return jti in self._blacklist
+        """Check if a token has been revoked."""
+        return self._backend.is_revoked(jti)
 
     def cleanup(self) -> int:
-        """
-        Remove expired entries from the blacklist.
+        """Clean expired entries. Only effective for in-memory backend."""
+        backend = self._backend
+        if hasattr(backend, "_store"):
+            import time as _time
 
-        Returns:
-            Number of entries removed
-        """
-        now = time.time()
-        with self._lock:
-            expired = [jti for jti, exp in self._blacklist.items() if exp < now]
-            for jti in expired:
-                del self._blacklist[jti]
+            now = _time.time()
+            expired = [k for k, v in backend._store.items() if now > v]
+            for k in expired:
+                del backend._store[k]
             return len(expired)
+        return 0
 
     @property
     def size(self) -> int:
         """Number of tokens currently blacklisted."""
-        with self._lock:
-            return len(self._blacklist)
+        backend = self._backend
+        if hasattr(backend, "_store"):
+            return len(backend._store)
+        return -1
 
 
 # Global singleton

@@ -211,8 +211,8 @@ app.add_middleware(
     allow_origins=os.getenv("ATLAS_ALLOWED_ORIGINS", "http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-    expose_headers=["X-Request-ID"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Accept-Language"],
+    expose_headers=["X-Request-ID", "X-API-Version"],
 )
 
 # Include authentication routes
@@ -226,6 +226,66 @@ app.include_router(audit_router)
 async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+@app.get("/health/ready")
+async def readiness_check() -> dict:
+    """
+    Deep health check — verifies downstream dependencies.
+
+    Returns individual component status and overall readiness.
+    Used by Kubernetes readinessProbe.
+    """
+    checks: dict[str, dict] = {}
+
+    # 1. Agent / LLM
+    checks["agent"] = {"status": "up" if _agent else "down"}
+
+    # 2. Redis (rate limiter)
+    try:
+        from atlas.api.security.redis_backend import get_rate_limiter, RedisRateLimiter
+
+        rl = get_rate_limiter()
+        if isinstance(rl, RedisRateLimiter):
+            rl._r.ping()
+            checks["redis"] = {"status": "up"}
+        else:
+            checks["redis"] = {"status": "up", "mode": "in-memory"}
+    except Exception as e:
+        checks["redis"] = {"status": "down", "error": str(e)}
+
+    # 3. Oracle connector (mock vs real)
+    if _agent and hasattr(_agent, "_connector"):
+        connector = _agent._connector
+        is_mock = type(connector).__name__ == "MagicMock"
+        checks["oracle"] = {
+            "status": "up",
+            "mode": "mock" if is_mock else "live",
+            "thin_mode": True,
+        }
+    else:
+        checks["oracle"] = {"status": "down"}
+
+    # 4. Qdrant / indexer
+    if _agent and hasattr(_agent, "_indexer"):
+        indexer = _agent._indexer
+        is_mock = type(indexer).__name__ == "MagicMock"
+        checks["qdrant"] = {
+            "status": "up",
+            "mode": "mock" if is_mock else "live",
+        }
+    else:
+        checks["qdrant"] = {"status": "down"}
+
+    overall = all(c["status"] == "up" for c in checks.values())
+    status_code = 200 if overall else 503
+
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse(
+        content={"status": "ready" if overall else "degraded", "checks": checks},
+        status_code=status_code,
+    )
 
 
 @app.get("/metrics", include_in_schema=False)
