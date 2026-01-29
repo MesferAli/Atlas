@@ -101,47 +101,114 @@ uvicorn src.atlas.api.main:app --host 0.0.0.0 --port 8080
 
 # Frontend development
 cd src/atlas/frontend && npm install && npm run dev
+
+# Docker build
+docker build -t atlas-api .
 ```
 
-## Key Conventions
+## Core Principles
 
-### Security Rules (Critical)
+These principles guide all development on this project:
+
+1. **Security-first**: Every change must preserve read-only Oracle enforcement, PDPL compliance, and audit logging. Never weaken security controls.
+2. **Plan before implementing**: Break complex tasks into steps. Understand existing code before modifying it.
+3. **Test-driven**: Write or update tests for any new functionality. Run `pytest` to verify before committing.
+4. **Validate before committing**: Run `ruff check src/ tests/` and `pytest` before every commit. Fix all failures.
+5. **Small, focused changes**: Prefer many small commits over large monolithic ones. Each commit should do one thing.
+
+## Security Rules (Critical)
+
+These rules are **non-negotiable** and must never be bypassed:
+
 - **All Oracle queries must be read-only.** The `validate_query()` method in `connector.py` blocks INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, TRUNCATE, MERGE, GRANT, REVOKE, EXECUTE, and CALL.
 - **Never bypass query validation.** All SQL must pass through `validate_query()` before execution.
+- **Never hardcode secrets.** Use environment variables for credentials, API keys, and signing keys.
 - **PDPL compliance is mandatory.** PII detection and data classification must be maintained.
-- **Audit logging is append-only.** All query executions and security events are logged to `./logs/audit/` in JSONL format.
-- **Passwords redacted in logs.** The audit system sanitizes sensitive fields (passwords, tokens).
+- **Audit logging is append-only.** All query executions and security events are logged to `./logs/audit/` in JSONL format. Never delete or modify audit logs.
+- **Passwords and tokens redacted in logs.** The audit system sanitizes sensitive fields automatically.
+- **Validate all user input.** Use Pydantic models for request validation. Sanitize for null bytes and injection attacks.
+- **Never commit `.env` files, credentials, or secrets** to the repository.
 
-### Authentication & Authorization
+## Authentication & Authorization
+
 - JWT tokens with 24-hour expiration (HS256)
 - RBAC roles: ADMIN, ANALYST, VIEWER, SERVICE
 - Password requirements: 8+ chars, uppercase, lowercase, digit
 - Demo credentials: `demo@atlas.sa` / `Demo@123` (ANALYST role)
 - Rate limiting: 60 req/min general, 10 req/min for auth endpoints
 
-### Data Classification
+## Data Classification
+
 Oracle Fusion tables have classification levels defined in `data/oracle_fusion_schema.json`:
 - PUBLIC, INTERNAL, RESTRICTED, SECRET, TOP_SECRET
 - Each table specifies required RBAC roles and access predicates
 - Salary and payroll tables are classified as SECRET
+- Always check classification before adding new table access
 
-### Code Style
+## Code Style
+
+### Python (Backend)
 - Python 3.11+, line length 100 (configured in pyproject.toml via ruff)
 - Async/await patterns for Oracle connections and API endpoints
 - Pydantic v2 models for all request/response validation
-- Frontend uses TypeScript strict mode with Tailwind CSS utility classes
+- Type hints on all function signatures
+- Organize by feature, not by file type
+- Use try/except with specific exception types — never bare `except:`
 
-### NL-to-SQL Pipeline
+### TypeScript (Frontend)
+- TypeScript strict mode
+- Tailwind CSS utility classes for styling
+- Radix UI primitives for accessible components
+- React Query for server state management
+- Wouter for routing (not react-router)
+
+## Git Workflow
+
+- Use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
+- Never commit directly to `main` — use feature branches
+- Run linting and tests before committing
+- Write descriptive commit messages explaining *why*, not just *what*
+
+## NL-to-SQL Pipeline
+
 1. User question enters via `/v1/chat`
 2. Semantic search finds relevant tables (sentence-transformers → Qdrant)
-3. LLM generates SQL with schema context (bilingual prompts)
-4. Query validated as read-only
+3. LLM generates SQL with schema context (bilingual Arabic/English prompts)
+4. Query validated as read-only via `validate_query()`
 5. Executed against Oracle via Thin Mode connector
-6. Results returned with audit trail
+6. Results returned with full audit trail
 
-### Environment Variables
-- `ATLAS_USE_UNSLOTH` — Enable Unsloth/Qwen LLM instead of mock
-- `ATLAS_AUDIT_LOG_DIR` — Audit log directory (default: `./logs/audit/`)
-- `SECRET_KEY` — JWT signing key
-- `ORACLE_DSN`, `ORACLE_USER`, `ORACLE_PASSWORD` — Oracle connection
-- `QDRANT_URL` — Qdrant vector DB endpoint
+## Key API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/health` | GET | Health check |
+| `/v1/chat` | POST | NL-to-SQL query processing |
+| `/v1/security` | GET | Security configuration status |
+| `/v1/model` | GET | Active LLM model info |
+| `/api/auth/login` | POST | User authentication |
+| `/api/auth/register` | POST | New user registration |
+| `/api/auth/logout` | POST | Token invalidation |
+| `/api/auth/refresh` | POST | Token refresh |
+| `/api/audit/logs` | GET | Query audit logs (RBAC enforced) |
+| `/api/audit/stats` | GET | Audit statistics (admin only) |
+
+## Environment Variables
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `ATLAS_USE_UNSLOTH` | Enable Unsloth/Qwen LLM | disabled (uses mock) |
+| `ATLAS_AUDIT_LOG_DIR` | Audit log directory | `./logs/audit/` |
+| `SECRET_KEY` | JWT signing key | — |
+| `ORACLE_DSN` | Oracle connection string | — |
+| `ORACLE_USER` | Oracle username | — |
+| `ORACLE_PASSWORD` | Oracle password | — |
+| `QDRANT_URL` | Qdrant vector DB endpoint | — |
+
+## Debugging Tips
+
+- **API not starting**: Check that port 8080 is free. Verify `SECRET_KEY` is set.
+- **Oracle connection fails**: Atlas uses Thin Mode — no Oracle Client needed. Check `ORACLE_DSN` format.
+- **Tests failing on imports**: Ensure `pip install -e ".[dev]"` was run and `pythonpath = ["src"]` is set in pyproject.toml.
+- **Frontend build errors**: Run `npm install` in `src/atlas/frontend/` first. Check Node.js 18+ is installed.
+- **Audit logs missing**: Check `ATLAS_AUDIT_LOG_DIR` points to a writable directory.
