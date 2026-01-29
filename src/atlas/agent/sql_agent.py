@@ -162,11 +162,17 @@ class OracleSQLAgent:
         # Step 1: Find relevant tables using semantic search
         relevant_tables = self._indexer.search_tables(question, limit=table_limit)
 
-        # Step 1.5: Apply Data Moat role-based filtering if role provided
-        if user_role and relevant_tables:
+        # Step 1.5: Apply Data Moat role-based filtering
+        # SECURITY: Always filter. When user_role is None (unauthenticated),
+        # default to "viewer" — the most restrictive named role. This ensures
+        # SECRET tables are never leaked to anonymous or unauthenticated users.
+        if relevant_tables:
             from atlas.connectors.oracle.data_moat import filter_tables_by_role
 
-            relevant_tables = filter_tables_by_role(relevant_tables, user_role)
+            effective_role = user_role or "viewer"
+            relevant_tables = filter_tables_by_role(
+                relevant_tables, effective_role
+            )
 
         # Step 2: Build prompt with schema context
         prompt = self._build_prompt(question, relevant_tables)

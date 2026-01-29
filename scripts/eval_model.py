@@ -73,16 +73,129 @@ def check_hallucination(sql: str, known_tables: set[str]) -> bool:
     return False
 
 
-def load_known_tables(schema_path: str) -> set[str]:
-    """Load known table names from schema JSON."""
+def check_column_hallucination(
+    sql: str,
+    table_columns: dict[str, set[str]],
+) -> bool:
+    """Check if SQL references columns that don't exist in the schema.
+
+    Validates column references against the Oracle Data Dictionary
+    loaded from oracle_fusion_schema.json. This catches the model
+    inventing plausible-sounding but non-existent column names.
+
+    Args:
+        sql: Generated SQL query
+        table_columns: Mapping of TABLE_NAME -> set of known column names
+
+    Returns:
+        True if a column hallucination is detected
+    """
+    if not table_columns:
+        return False
+
+    sql_upper = sql.upper()
+
+    # Identify which known tables appear in the query
+    tables_in_query: list[str] = []
+    for tbl in table_columns:
+        # Match as standalone word (not substring of another identifier)
+        if re.search(rf"\b{re.escape(tbl)}\b", sql_upper):
+            tables_in_query.append(tbl)
+
+    if not tables_in_query:
+        return False
+
+    # Build the full set of valid columns across all referenced tables
+    valid_columns: set[str] = set()
+    for tbl in tables_in_query:
+        valid_columns.update(table_columns[tbl])
+
+    # Extract column-like identifiers from SELECT, WHERE, GROUP BY, ORDER BY
+    # Skip string literals, table aliases, SQL keywords, and functions
+    sql_keywords = {
+        "SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "IN", "IS",
+        "NULL", "AS", "ON", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER",
+        "CROSS", "FULL", "GROUP", "BY", "ORDER", "ASC", "DESC",
+        "HAVING", "BETWEEN", "LIKE", "EXISTS", "CASE", "WHEN", "THEN",
+        "ELSE", "END", "DISTINCT", "COUNT", "SUM", "AVG", "MIN", "MAX",
+        "UPPER", "LOWER", "TRIM", "TO_CHAR", "TO_DATE", "TO_NUMBER",
+        "NVL", "NVL2", "DECODE", "COALESCE", "TRUNC", "SYSDATE",
+        "ADD_MONTHS", "FETCH", "FIRST", "ROWS", "ONLY", "DUAL",
+        "OVER", "PARTITION", "ROW_NUMBER", "RANK", "DENSE_RANK",
+        "ROWNUM", "ROWID", "LEVEL", "CONNECT", "PRIOR", "START",
+        "WITH", "UNION", "ALL", "INTERSECT", "MINUS",
+    }
+
+    # Remove string literals to avoid false positives
+    cleaned = re.sub(r"'[^']*'", "", sql_upper)
+
+    # Extract identifiers: sequences of word chars, possibly dotted
+    # e.g. "t.PERSON_ID" -> we take "PERSON_ID"
+    identifiers = re.findall(r"(?:\w+\.)?(\w+)", cleaned)
+
+    hallucinated = False
+    for ident in identifiers:
+        ident_upper = ident.upper()
+        # Skip numbers, SQL keywords, table names, aliases (1-2 chars)
+        if ident_upper.isdigit():
+            continue
+        if ident_upper in sql_keywords:
+            continue
+        if ident_upper in table_columns:
+            continue
+        if len(ident_upper) <= 2:
+            continue
+        # Check if it could be a column reference
+        if ident_upper in valid_columns:
+            continue
+        # It's an unknown identifier referencing known tables — hallucination
+        # Only flag if it looks like a column (not a numeric literal, etc.)
+        if re.match(r"^[A-Z_]\w+$", ident_upper):
+            hallucinated = True
+            break
+
+    return hallucinated
+
+
+def load_schema(schema_path: str) -> list[dict]:
+    """Load the full schema JSON."""
     path = Path(schema_path)
     if not path.exists():
-        return set()
-
+        return []
     with open(path, encoding="utf-8") as f:
-        schema = json.load(f)
+        return json.load(f)
 
-    return {obj["name"].upper() for obj in schema if obj.get("object_type") == "TABLE"}
+
+def load_known_tables(schema_path: str) -> set[str]:
+    """Load known table names from schema JSON."""
+    schema = load_schema(schema_path)
+    return {
+        obj["name"].upper()
+        for obj in schema
+        if obj.get("object_type") == "TABLE"
+    }
+
+
+def load_table_columns(schema_path: str) -> dict[str, set[str]]:
+    """Load table-to-columns mapping from schema JSON.
+
+    Parses column entries like "PERSON_ID (PK)" into just "PERSON_ID".
+    """
+    schema = load_schema(schema_path)
+    result: dict[str, set[str]] = {}
+
+    for obj in schema:
+        if obj.get("object_type") != "TABLE":
+            continue
+        cols: set[str] = set()
+        for col_entry in obj.get("columns", []):
+            # Strip annotations: "PERSON_ID (PK)" -> "PERSON_ID"
+            col_name = col_entry.split("(")[0].strip().upper()
+            if col_name:
+                cols.add(col_name)
+        result[obj["name"].upper()] = cols
+
+    return result
 
 
 def main() -> int:
@@ -102,9 +215,11 @@ def main() -> int:
         print(f"Error: Eval data not found: {args.eval_data}")
         return 1
 
-    # Load schema for hallucination check
+    # Load schema for hallucination checks
     known_tables = load_known_tables(args.schema_path)
-    print(f"Known tables: {len(known_tables)}")
+    table_columns = load_table_columns(args.schema_path)
+    total_cols = sum(len(v) for v in table_columns.values())
+    print(f"Known tables: {len(known_tables)}, columns: {total_cols}")
 
     # Load eval data
     eval_records = []
@@ -142,6 +257,7 @@ def main() -> int:
         "read_only": 0,
         "exact_match": 0,
         "hallucinations": 0,
+        "column_hallucinations": 0,
         "errors": 0,
     }
 
@@ -191,6 +307,9 @@ def main() -> int:
             if check_hallucination(predicted_sql, known_tables):
                 metrics["hallucinations"] += 1
 
+            if check_column_hallucination(predicted_sql, table_columns):
+                metrics["column_hallucinations"] += 1
+
         except Exception as e:
             metrics["errors"] += 1
             if i < 5:
@@ -211,7 +330,8 @@ def main() -> int:
     print(f"SQL validity:        {pct('valid_select')}")
     print(f"Read-only compliant: {pct('read_only')}")
     print(f"Exact match:         {pct('exact_match')}")
-    print(f"Hallucinations:      {pct('hallucinations')}")
+    print(f"Table hallucinations:{pct('hallucinations')}")
+    print(f"Col hallucinations:  {pct('column_hallucinations')}")
     print(f"Errors:              {metrics['errors']}/{total}")
     print("=" * 50)
 

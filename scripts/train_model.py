@@ -99,8 +99,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--lora-alpha",
         type=int,
-        default=16,
-        help="LoRA alpha (scaling factor)",
+        default=32,
+        help="LoRA alpha (scaling = alpha/r, default 32/16 = 2x)",
     )
     parser.add_argument(
         "--lora-dropout",
@@ -177,6 +177,24 @@ def load_dataset_from_jsonl(path: str) -> list[dict]:
     return records
 
 
+def _gpu_supports_bf16() -> bool:
+    """Check if the current GPU supports bfloat16 (A100, H100, L40, etc.).
+
+    bf16 is faster and more numerically stable than fp16 on Ampere+ GPUs.
+    Falls back to fp16 on older hardware (V100, T4).
+    """
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            cap = torch.cuda.get_device_capability()
+            # Ampere (sm_80+) supports bf16 natively
+            return cap[0] >= 8
+    except ImportError:
+        pass
+    return False
+
+
 def main() -> int:
     args = parse_args()
     global EOS_TOKEN
@@ -199,8 +217,11 @@ def main() -> int:
     print(f"Batch size:      {args.batch_size} (x{args.gradient_accumulation} accum)")
     print(f"Effective batch: {args.batch_size * args.gradient_accumulation}")
     print(f"Learning rate:   {args.lr}")
+    use_bf16 = _gpu_supports_bf16()
     print(f"LoRA rank:       {args.lora_r}, alpha: {args.lora_alpha}")
+    print(f"LoRA scaling:    {args.lora_alpha / args.lora_r:.1f}x")
     print(f"Max seq length:  {args.max_seq_length}")
+    print(f"Precision:       {'bf16' if use_bf16 else 'fp16'}")
     print("=" * 60)
 
     # Step 1: Load model
@@ -276,8 +297,8 @@ def main() -> int:
         lr_scheduler_type="cosine",
         warmup_ratio=0.05,
         weight_decay=0.01,
-        fp16=True,
-        bf16=False,
+        fp16=not _gpu_supports_bf16(),
+        bf16=_gpu_supports_bf16(),
         logging_steps=10,
         save_steps=args.save_steps,
         save_total_limit=3,
