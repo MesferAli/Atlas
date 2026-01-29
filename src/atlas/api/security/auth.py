@@ -103,7 +103,7 @@ def verify_token(token: str) -> TokenPayload:
     """
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        return TokenPayload(
+        token_payload = TokenPayload(
             sub=payload["sub"],
             email=payload["email"],
             role=UserRole(payload["role"]),
@@ -111,6 +111,18 @@ def verify_token(token: str) -> TokenPayload:
             iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
             jti=payload["jti"],
         )
+
+        # Check if token has been revoked
+        from atlas.api.security.token_blacklist import get_token_blacklist
+
+        if get_token_blacklist().is_revoked(token_payload.jti):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has been revoked",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return token_payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -7,14 +7,52 @@ SECURITY: Defense-in-depth through middleware layers.
 - Request logging for audit trails
 """
 
+import json
+import logging
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Callable
+from pathlib import Path
+from typing import Any, Callable
 
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+
+logger = logging.getLogger("atlas.siem")
+
+
+class SIEMForwarder:
+    """
+    SIEM log forwarder for security event monitoring.
+
+    Writes structured JSON logs that can be consumed by SIEM systems
+    (Splunk, Elastic SIEM, IBM QRadar, etc.) via file-based log shipping.
+
+    In production, extend with direct API integration to your SIEM provider.
+    """
+
+    def __init__(self, log_dir: str | None = None) -> None:
+        import os
+
+        self._log_dir = Path(log_dir or os.getenv("ATLAS_SIEM_LOG_DIR", "./logs/siem"))
+        self._log_dir.mkdir(parents=True, exist_ok=True)
+
+    def _get_log_file(self) -> Path:
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        return self._log_dir / f"requests_{date_str}.jsonl"
+
+    def forward(self, entry: dict[str, Any]) -> None:
+        """Write a structured log entry for SIEM consumption."""
+        try:
+            with open(self._get_log_file(), "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, default=str) + "\n")
+        except Exception as e:
+            logger.warning("SIEM log write failed: %s", e)
+
+
+# Global SIEM forwarder
+_siem_forwarder = SIEMForwarder()
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -148,9 +186,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Calculate duration
         duration_ms = (time.time() - start_time) * 1000
 
-        # Log request (in production, send to structured logging)
-        # For now, we construct the log entry for future SIEM integration
-        _log_entry = {
+        # Structured log entry for SIEM integration
+        log_entry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "method": request.method,
             "path": request.url.path,
@@ -159,8 +196,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "client_ip": client_ip,
             "user_agent": request.headers.get("User-Agent", "")[:200],
         }
-        # TODO: Send to SIEM/logging system
-        del _log_entry  # Explicitly mark as intentionally unused for now
+
+        # Send to SIEM via configured forwarder
+        _siem_forwarder.forward(log_entry)
 
         # Add security-relevant headers to response
         response.headers["X-Request-ID"] = str(id(request))

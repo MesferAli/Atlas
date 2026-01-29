@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlas-api
+  namespace: atlas
+  labels:
+    app: atlas-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: atlas-api
+  template:
+    metadata:
+      labels:
+        app: atlas-api
+    spec:
+      containers:
+        - name: atlas-api
+          image: registry.cn-riyadh.cr.aliyuncs.com/atlas/atlas-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-secrets
+                  key: secret-key
+            - name: ORACLE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-secrets
+                  key: oracle-dsn
+            - name: ORACLE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-secrets
+                  key: oracle-user
+            - name: ORACLE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-secrets
+                  key: oracle-password
+            - name: QDRANT_URL
+              value: "http://qdrant:6333"
+            - name: ATLAS_AUDIT_LOG_DIR
+              value: "/var/log/atlas/audit"
+          volumeMounts:
+            - name: audit-logs
+              mountPath: /var/log/atlas/audit
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: audit-logs
+          persistentVolumeClaim:
+            claimName: atlas-audit-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlas-api
+  namespace: atlas
+spec:
+  selector:
+    app: atlas-api
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: atlas-audit-pvc
+  namespace: atlas
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atlas

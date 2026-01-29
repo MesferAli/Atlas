@@ -204,8 +204,11 @@ async def logout(
     if not client_ip and request.client:
         client_ip = request.client.host
 
-    # In production, add token JTI to blocklist
-    # For now, just log the logout
+    # Revoke the token via blacklist
+    from atlas.api.security.token_blacklist import get_token_blacklist
+
+    get_token_blacklist().revoke(user.jti, user.exp)
+
     audit.log(
         event_type=AuditEventType.LOGOUT,
         user_id=user.sub,
