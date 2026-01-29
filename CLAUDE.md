@@ -7,8 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Atlas is an enterprise AI orchestration platform (Saudi AI Middleware v2.1) that provides:
 - Multi-provider AI routing (Claude, GPT-4o, ALLaM) with cost optimization
 - Oracle Connector Lite: Read-only natural language queries against Oracle databases via `python-oracledb` thin mode
-- PDPL compliance enforcement with automatic PII detection
+- PDPL (Personal Data Protection Law) compliance enforcement with automatic PII detection
 - Atlas Secure Agent encrypted tunneling for legacy database connections
+- Bilingual support (Arabic/English) throughout the platform
 
 ## Architecture
 
@@ -16,9 +17,63 @@ Atlas is an enterprise AI orchestration platform (Saudi AI Middleware v2.1) that
 
 **Data Layer**: PostgreSQL (primary), Redis (caching), Qdrant (vector search)
 
-**Oracle Integration**: Uses `python-oracledb` in Thin Mode (no Oracle Client installation required) through the Atlas Secure Agent tunnel. All Oracle queries must be strictly read-only - no DDL/DML operations allowed.
+**Oracle Integration**: Uses `python-oracledb` in Thin Mode (no Oracle Client installation required) through the Atlas Secure Agent tunnel. All Oracle queries must be strictly read-only — no DDL/DML operations allowed.
 
-**AI Providers**: Requests are intelligently routed between Claude, GPT-4o, and ALLaM based on cost and capability requirements.
+**AI Providers**: Requests are intelligently routed between Claude, GPT-4o, and ALLaM based on cost and capability requirements. Production uses a fine-tuned Qwen model via Unsloth (4-bit quantized).
+
+**Frontend**: React 18 + TypeScript with Vite, Tailwind CSS, and Radix UI components. Uses Wouter for routing and React Query for data fetching.
+
+**Backend**: FastAPI with Pydantic v2 validation, JWT authentication (bcrypt + HS256), and layered security middleware.
+
+## Code Structure
+
+```
+src/atlas/
+├── api/                          # FastAPI backend
+│   ├── main.py                   # App entry point, /health, /v1/chat, /v1/security
+│   ├── routes/
+│   │   ├── auth.py               # /api/auth/* (login, register, logout, refresh)
+│   │   └── audit.py              # /api/audit/* (logs, stats, events)
+│   └── security/
+│       ├── auth.py               # JWT + bcrypt authentication
+│       ├── models.py             # Pydantic request/response models, RBAC roles
+│       ├── audit.py              # Append-only audit logging (JSONL, daily rotation)
+│       ├── middleware.py         # Rate limiting, security headers, request logging
+│       └── webhooks.py           # Webhook handling
+├── connectors/oracle/
+│   ├── connector.py              # OracleConnector: validate_query() + read-only execution
+│   └── indexer.py                # OracleSchemaIndexer: semantic search via Qdrant
+├── agent/
+│   ├── sql_agent.py              # OracleSQLAgent: NL-to-SQL with RAG pipeline
+│   └── unsloth_llm.py           # Qwen model integration via Unsloth
+└── frontend/                     # React TypeScript SPA
+    ├── src/
+    │   ├── App.tsx               # Main app with routing
+    │   ├── pages/                # dashboard, audit, settings, login, register, etc.
+    │   ├── components/
+    │   │   ├── atlas/            # Domain-specific components
+    │   │   └── ui/               # Radix UI primitives
+    │   ├── hooks/                # use-auth.ts, use-toast.ts
+    │   └── lib/                  # queryClient.ts, utils.ts, i18n.ts
+    ├── vite.config.ts
+    └── tailwind.config.ts
+
+data/
+└── oracle_fusion_schema.json     # 25+ Oracle Fusion objects with security metadata
+
+scripts/
+├── atlas_chat.py                 # Interactive CLI chat with role-based access
+├── demo_agent.py                 # Demo agent script
+├── apply_data_classification.py  # Data classification utility
+└── inject_moat.py                # Data Moat injection utility
+
+tests/
+└── unit/
+    └── test_oracle_connector.py  # Query validation and security tests
+
+docs/
+└── PRD.md                        # Product Requirements Document
+```
 
 ## Development Commands
 
@@ -40,15 +95,53 @@ ruff check src/ tests/
 
 # Format code
 ruff format src/ tests/
+
+# Start the API server
+uvicorn src.atlas.api.main:app --host 0.0.0.0 --port 8080
+
+# Frontend development
+cd src/atlas/frontend && npm install && npm run dev
 ```
 
-## Code Structure
+## Key Conventions
 
-```
-src/atlas/
-├── connectors/oracle/    # Oracle Connector Lite (read-only DB access)
-│   ├── connector.py      # OracleConnector class with validate_query() security
-│   └── indexer.py        # OracleSchemaIndexer for RAG-based schema search
-├── agent/
-│   └── sql_agent.py      # OracleSQLAgent for NL-to-SQL with RAG pipeline
-```
+### Security Rules (Critical)
+- **All Oracle queries must be read-only.** The `validate_query()` method in `connector.py` blocks INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, TRUNCATE, MERGE, GRANT, REVOKE, EXECUTE, and CALL.
+- **Never bypass query validation.** All SQL must pass through `validate_query()` before execution.
+- **PDPL compliance is mandatory.** PII detection and data classification must be maintained.
+- **Audit logging is append-only.** All query executions and security events are logged to `./logs/audit/` in JSONL format.
+- **Passwords redacted in logs.** The audit system sanitizes sensitive fields (passwords, tokens).
+
+### Authentication & Authorization
+- JWT tokens with 24-hour expiration (HS256)
+- RBAC roles: ADMIN, ANALYST, VIEWER, SERVICE
+- Password requirements: 8+ chars, uppercase, lowercase, digit
+- Demo credentials: `demo@atlas.sa` / `Demo@123` (ANALYST role)
+- Rate limiting: 60 req/min general, 10 req/min for auth endpoints
+
+### Data Classification
+Oracle Fusion tables have classification levels defined in `data/oracle_fusion_schema.json`:
+- PUBLIC, INTERNAL, RESTRICTED, SECRET, TOP_SECRET
+- Each table specifies required RBAC roles and access predicates
+- Salary and payroll tables are classified as SECRET
+
+### Code Style
+- Python 3.11+, line length 100 (configured in pyproject.toml via ruff)
+- Async/await patterns for Oracle connections and API endpoints
+- Pydantic v2 models for all request/response validation
+- Frontend uses TypeScript strict mode with Tailwind CSS utility classes
+
+### NL-to-SQL Pipeline
+1. User question enters via `/v1/chat`
+2. Semantic search finds relevant tables (sentence-transformers → Qdrant)
+3. LLM generates SQL with schema context (bilingual prompts)
+4. Query validated as read-only
+5. Executed against Oracle via Thin Mode connector
+6. Results returned with audit trail
+
+### Environment Variables
+- `ATLAS_USE_UNSLOTH` — Enable Unsloth/Qwen LLM instead of mock
+- `ATLAS_AUDIT_LOG_DIR` — Audit log directory (default: `./logs/audit/`)
+- `SECRET_KEY` — JWT signing key
+- `ORACLE_DSN`, `ORACLE_USER`, `ORACLE_PASSWORD` — Oracle connection
+- `QDRANT_URL` — Qdrant vector DB endpoint
