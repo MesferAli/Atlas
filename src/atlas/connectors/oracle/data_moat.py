@@ -60,6 +60,41 @@ def get_classification_level(classification: str) -> int:
     return 1  # Default to INTERNAL
 
 
+def _resolve_classification(
+    table: dict[str, Any],
+    schema_lookup: dict[str, str] | None,
+) -> str:
+    """Resolve the classification for a table dict.
+
+    Checks three sources in order:
+    1. Inline ``security_metadata.classification`` on the dict itself
+    2. Inline ``classification`` key (Qdrant payload format)
+    3. Schema JSON lookup by ``table_name`` or ``name``
+
+    Falls back to INTERNAL if nothing matches.
+    """
+    # Source 1: nested security_metadata (schema JSON format)
+    security = table.get("security_metadata", {})
+    if security.get("classification"):
+        return security["classification"]
+
+    # Source 2: flat classification key (Qdrant payload format)
+    if table.get("classification"):
+        return table["classification"]
+
+    # Source 3: lookup from loaded schema JSON
+    if schema_lookup:
+        name = (
+            table.get("table_name")
+            or table.get("name")
+            or ""
+        ).upper()
+        if name in schema_lookup:
+            return schema_lookup[name]
+
+    return "INTERNAL"
+
+
 def filter_tables_by_role(
     tables: list[dict[str, Any]],
     user_role: str,
@@ -72,6 +107,12 @@ def filter_tables_by_role(
     search results, preventing the NL-to-SQL agent from even
     seeing restricted schemas.
 
+    The function handles tables from multiple sources:
+    - Schema JSON objects (have ``security_metadata.classification``)
+    - Qdrant search results (have flat ``classification`` key)
+    - Indexer search results (have ``table_name`` only — looked up
+      against the schema JSON on disk)
+
     Args:
         tables: List of table metadata dicts (from schema JSON or search results)
         user_role: The role of the requesting user
@@ -80,11 +121,28 @@ def filter_tables_by_role(
         Filtered list containing only tables the user may access
     """
     max_level = ROLE_CLEARANCE.get(user_role, 0)
-    filtered = []
 
+    # Build a lookup table from schema JSON for tables that lack
+    # inline classification (e.g. results from OracleSchemaIndexer)
+    schema_lookup: dict[str, str] | None = None
+    needs_lookup = any(
+        not t.get("security_metadata", {}).get("classification")
+        and not t.get("classification")
+        for t in tables
+    )
+    if needs_lookup:
+        schema = load_schema_metadata()
+        schema_lookup = {
+            obj["name"].upper(): obj.get("security_metadata", {}).get(
+                "classification", "INTERNAL"
+            )
+            for obj in schema
+            if "name" in obj
+        }
+
+    filtered = []
     for table in tables:
-        security = table.get("security_metadata", {})
-        classification = security.get("classification", "INTERNAL")
+        classification = _resolve_classification(table, schema_lookup)
         table_level = get_classification_level(classification)
 
         if table_level <= max_level:
