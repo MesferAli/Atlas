@@ -29,6 +29,7 @@ from atlas.connectors.oracle.indexer import OracleSchemaIndexer
 
 # Environment configuration
 USE_UNSLOTH = os.getenv("ATLAS_USE_UNSLOTH", "false").lower() == "true"
+USE_GLM4 = os.getenv("ATLAS_USE_GLM4", "false").lower() == "true"
 MODEL_PATH = os.getenv("ATLAS_MODEL_PATH", "/workspace/atlas_erp/models/atlas-qwen-full/final")
 QDRANT_PATH = os.getenv("ATLAS_QDRANT_PATH", "./qdrant_data")
 
@@ -157,7 +158,20 @@ def _create_mock_indexer() -> OracleSchemaIndexer:
 
 def _create_llm() -> BaseLLM:
     """Create LLM instance based on environment configuration."""
-    if USE_UNSLOTH:
+    if USE_GLM4:
+        try:
+            from atlas.agent.glm4_llm import GLM4LLM
+
+            print("Initializing GLM-4 LLM...")
+            llm = GLM4LLM()
+            llm.load_model()
+            print("GLM-4 LLM loaded successfully!")
+            return llm
+        except Exception as e:
+            print(f"Failed to load GLM-4 LLM: {e}")
+            print("Falling back to MockLLM")
+            return MockLLM()
+    elif USE_UNSLOTH:
         try:
             from atlas.agent.unsloth_llm import UnslothLLM
 
@@ -171,7 +185,7 @@ def _create_llm() -> BaseLLM:
             print("Falling back to MockLLM")
             return MockLLM()
     else:
-        print("Using MockLLM (set ATLAS_USE_UNSLOTH=true for real model)")
+        print("Using MockLLM (set ATLAS_USE_GLM4=true or ATLAS_USE_UNSLOTH=true for real model)")
         return MockLLM()
 
 

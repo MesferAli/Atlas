@@ -12,3 +12,10 @@ try:
     __all__.extend(["UnslothLLM", "create_unsloth_llm"])
 except ImportError:
     pass  # Unsloth not available
+
+try:
+    from .glm4_llm import GLM4LLM, create_glm4_llm  # noqa: F401
+
+    __all__.extend(["GLM4LLM", "create_glm4_llm"])
+except ImportError:
+    pass  # openai package not available
