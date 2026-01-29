@@ -1,0 +1,149 @@
+# Prometheus ServiceMonitor for Atlas API
+# Requires prometheus-operator CRDs installed in the cluster
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: atlas-api-monitor
+  namespace: atlas
+  labels:
+    app: atlas-api
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: atlas-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+---
+# Grafana Dashboard ConfigMap
+# Import this into Grafana via the dashboard provisioner or UI
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atlas-grafana-dashboard
+  namespace: atlas
+  labels:
+    grafana_dashboard: "true"
+    app: atlas-api
+data:
+  atlas-dashboard.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "title": "Request Rate (req/s)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "rate(atlas_http_requests_total[1m])",
+              "legendFormat": "{{method}} {{status}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": { "mode": "palette-classic" }
+            }
+          }
+        },
+        {
+          "title": "Error Rate (4xx + 5xx)",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(atlas_http_requests_total{status=~\"4..|5..\"}[5m])) / sum(rate(atlas_http_requests_total[5m])) * 100",
+              "legendFormat": "Error %"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Request Latency (p50/p95/p99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+          "targets": [
+            {
+              "expr": "atlas_http_request_duration_seconds_sum / atlas_http_request_duration_seconds_count",
+              "legendFormat": "avg latency"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": { "mode": "palette-classic" }
+            }
+          }
+        },
+        {
+          "title": "Requests by Endpoint",
+          "type": "bargauge",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum by (path) (atlas_http_requests_total)",
+              "legendFormat": "{{path}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            }
+          }
+        },
+        {
+          "title": "Auth Failures",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "rate(atlas_http_requests_total{status=\"401\"}[5m])",
+              "legendFormat": "401 Unauthorized"
+            },
+            {
+              "expr": "rate(atlas_http_requests_total{status=\"403\"}[5m])",
+              "legendFormat": "403 Forbidden"
+            },
+            {
+              "expr": "rate(atlas_http_requests_total{status=\"429\"}[5m])",
+              "legendFormat": "429 Rate Limited"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": { "mode": "palette-classic" }
+            }
+          }
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": ["atlas", "api", "security"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "title": "Atlas API - Operations Dashboard",
+      "uid": "atlas-api-ops"
+    }

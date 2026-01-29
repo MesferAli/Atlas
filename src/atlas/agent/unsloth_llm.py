@@ -149,6 +149,9 @@ class UnslothLLM(BaseLLM):
 
     async def _generate_locked(self, prompt: str) -> str:
         """Run inference while holding the lock."""
+        # Resolve prefix cache key for schema context
+        prefix_key = self._get_prefix_key(prompt)
+
         # Tokenize input
         inputs = self._tokenizer(
             prompt,
@@ -156,6 +159,13 @@ class UnslothLLM(BaseLLM):
             truncation=True,
             max_length=1792,  # Leave room for generation
         ).to(self.device)
+
+        # Update prefix cache (evict oldest if full)
+        if prefix_key and prefix_key not in self._prefix_cache:
+            if len(self._prefix_cache) >= self._cache_max_size:
+                oldest = next(iter(self._prefix_cache))
+                del self._prefix_cache[oldest]
+            self._prefix_cache[prefix_key] = inputs["input_ids"].shape[1]
 
         # Generate
         outputs = self._model.generate(
