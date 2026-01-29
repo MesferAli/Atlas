@@ -6,7 +6,6 @@ from uuid import uuid4
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
-from sentence_transformers import SentenceTransformer
 
 from .connector import OracleConnector
 
@@ -47,6 +46,8 @@ class OracleSchemaIndexer:
         """
         self._connector = connector
         self._qdrant = QdrantClient(path=qdrant_path)
+        from sentence_transformers import SentenceTransformer
+
         self._embedder = SentenceTransformer(self.EMBEDDING_MODEL)
         self._ensure_collection()
 

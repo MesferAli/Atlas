@@ -41,6 +41,22 @@ export class ApiError extends Error {
  * @param body Optional request body
  * @returns Response object
  */
+/**
+ * Store or clear the JWT access token.
+ * Called after login (set) and logout (clear).
+ */
+export function setAuthToken(token: string | null): void {
+  if (token) {
+    localStorage.setItem("atlas_token", token);
+  } else {
+    localStorage.removeItem("atlas_token");
+  }
+}
+
+export function getAuthToken(): string | null {
+  return localStorage.getItem("atlas_token");
+}
+
 export async function apiRequest(
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   endpoint: string,
@@ -52,10 +68,16 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
+  // Attach JWT token so backend can extract user_role for Data Moat
+  const token = getAuthToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const config: RequestInit = {
     method,
     headers,
-    credentials: "include", // Include cookies for session-based auth
+    credentials: "include",
   };
 
   if (body && method !== "GET") {

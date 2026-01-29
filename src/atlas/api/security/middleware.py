@@ -84,16 +84,36 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return forwarded_for.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
 
-    def _clean_old_requests(self, ip: str, window_seconds: int = 60) -> None:
+    def _clean_old_requests(self, key: str, window_seconds: int = 60) -> None:
         """Remove request timestamps older than the window."""
         now = time.time()
-        self.request_counts[ip] = [
-            ts for ts in self.request_counts[ip] if now - ts < window_seconds
+        self.request_counts[key] = [
+            ts for ts in self.request_counts[key] if now - ts < window_seconds
         ]
+
+    def _extract_user_id(self, request: Request) -> str | None:
+        """Extract user ID from JWT Authorization header if present."""
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            return None
+        try:
+            import jwt as pyjwt
+
+            token = auth[7:]
+            # Decode without verification just to get sub for rate-limit key.
+            # Full verification happens later in the endpoint dependency.
+            payload = pyjwt.decode(token, options={"verify_signature": False})
+            return payload.get("sub")
+        except Exception:
+            return None
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         client_ip = self._get_client_ip(request)
-        self._clean_old_requests(client_ip)
+
+        # Use per-user key when authenticated, otherwise per-IP
+        user_id = self._extract_user_id(request)
+        rate_key = f"user:{user_id}" if user_id else f"ip:{client_ip}"
+        self._clean_old_requests(rate_key)
 
         # Determine rate limit based on endpoint
         is_auth_endpoint = request.url.path.startswith("/api/auth")
@@ -102,7 +122,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         )
 
         # Check rate limit
-        if len(self.request_counts[client_ip]) >= limit:
+        if len(self.request_counts[rate_key]) >= limit:
             return Response(
                 content='{"detail": "Rate limit exceeded. Please try again later."}',
                 status_code=429,
@@ -113,7 +133,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         # Record this request
-        self.request_counts[client_ip].append(time.time())
+        self.request_counts[rate_key].append(time.time())
 
         return await call_next(request)
 
@@ -199,6 +219,20 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Send to SIEM via configured forwarder
         _siem_forwarder.forward(log_entry)
+
+        # Prometheus metrics
+        from atlas.api.metrics import get_metrics
+
+        metrics = get_metrics()
+        metrics.inc_counter(
+            "atlas_http_requests_total",
+            {"method": request.method, "status": str(response.status_code)},
+        )
+        metrics.observe_histogram(
+            "atlas_http_request_duration_seconds",
+            duration_ms / 1000,
+            {"method": request.method, "path": request.url.path},
+        )
 
         # Add security-relevant headers to response
         response.headers["X-Request-ID"] = str(id(request))

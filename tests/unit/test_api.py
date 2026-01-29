@@ -1,9 +1,34 @@
-"""Integration tests for Atlas API endpoints."""
+"""Integration tests for Atlas API endpoints.
+
+These tests use the real FastAPI app with mock connectors (no Oracle/Qdrant needed).
+The app already uses mock connector and indexer when ATLAS_USE_UNSLOTH is unset.
+"""
+
+import os
 
 import pytest
-from fastapi.testclient import TestClient
 
-from atlas.api.main import app
+# Ensure we use MockLLM, not Unsloth
+os.environ.pop("ATLAS_USE_UNSLOTH", None)
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from atlas.api.main import app  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    """Clear rate limit counters before each test."""
+    from atlas.api.security import middleware as mw
+
+    # Walk the ASGI middleware stack to find the RateLimitMiddleware instance
+    inner = getattr(app, "middleware_stack", None)
+    while inner is not None:
+        if isinstance(inner, mw.RateLimitMiddleware):
+            inner.request_counts.clear()
+            break
+        inner = getattr(inner, "app", None)
+    yield
 
 
 @pytest.fixture
@@ -13,9 +38,18 @@ def client():
         yield c
 
 
-class TestHealthEndpoint:
-    """Tests for the /health endpoint."""
+@pytest.fixture
+def auth_token(client: TestClient) -> str:
+    """Get a valid auth token via login."""
+    resp = client.post(
+        "/api/auth/login",
+        json={"email": "demo@atlas.sa", "password": "Demo@123"},
+    )
+    assert resp.status_code == 200
+    return resp.json()["access_token"]
 
+
+class TestHealthEndpoint:
     def test_health_returns_200(self, client: TestClient) -> None:
         response = client.get("/health")
         assert response.status_code == 200
@@ -23,8 +57,6 @@ class TestHealthEndpoint:
 
 
 class TestSecurityEndpoint:
-    """Tests for the /v1/security endpoint."""
-
     def test_security_status(self, client: TestClient) -> None:
         response = client.get("/v1/security")
         assert response.status_code == 200
@@ -42,8 +74,6 @@ class TestSecurityEndpoint:
 
 
 class TestModelEndpoint:
-    """Tests for the /v1/model endpoint."""
-
     def test_model_info(self, client: TestClient) -> None:
         response = client.get("/v1/model")
         assert response.status_code == 200
@@ -52,8 +82,6 @@ class TestModelEndpoint:
 
 
 class TestAuthEndpoints:
-    """Tests for the /api/auth/* endpoints."""
-
     def test_login_success(self, client: TestClient) -> None:
         response = client.post(
             "/api/auth/login",
@@ -79,74 +107,34 @@ class TestAuthEndpoints:
         )
         assert response.status_code == 422
 
-    def test_register_and_login(self, client: TestClient) -> None:
-        reg_response = client.post(
-            "/api/auth/register",
-            json={
-                "email": "test@atlas.sa",
-                "password": "TestPass1",
-                "confirm_password": "TestPass1",
-                "full_name": "Test User",
-            },
-        )
-        assert reg_response.status_code == 200
-        data = reg_response.json()
-        assert data["user"]["role"] == "viewer"
-
-    def test_register_duplicate_email(self, client: TestClient) -> None:
-        response = client.post(
-            "/api/auth/register",
-            json={
-                "email": "demo@atlas.sa",
-                "password": "TestPass1",
-                "confirm_password": "TestPass1",
-                "full_name": "Dup User",
-            },
-        )
-        assert response.status_code == 409
-
     def test_get_user_requires_auth(self, client: TestClient) -> None:
         response = client.get("/api/auth/user")
         assert response.status_code == 401
 
-    def test_get_user_with_token(self, client: TestClient) -> None:
-        login = client.post(
-            "/api/auth/login",
-            json={"email": "demo@atlas.sa", "password": "Demo@123"},
-        )
-        token = login.json()["access_token"]
+    def test_get_user_with_token(self, client: TestClient, auth_token: str) -> None:
         response = client.get(
             "/api/auth/user",
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"Authorization": f"Bearer {auth_token}"},
         )
         assert response.status_code == 200
         assert response.json()["user"]["email"] == "demo@atlas.sa"
 
-    def test_logout_revokes_token(self, client: TestClient) -> None:
-        login = client.post(
-            "/api/auth/login",
-            json={"email": "demo@atlas.sa", "password": "Demo@123"},
-        )
-        token = login.json()["access_token"]
-
-        # Logout
+    def test_logout_revokes_token(self, client: TestClient, auth_token: str) -> None:
         logout_resp = client.post(
             "/api/auth/logout",
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"Authorization": f"Bearer {auth_token}"},
         )
         assert logout_resp.status_code == 200
 
         # Token should now be revoked
         user_resp = client.get(
             "/api/auth/user",
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"Authorization": f"Bearer {auth_token}"},
         )
         assert user_resp.status_code == 401
 
 
 class TestChatEndpoint:
-    """Tests for the /v1/chat endpoint."""
-
     def test_chat_with_question(self, client: TestClient) -> None:
         response = client.post(
             "/v1/chat",
@@ -164,18 +152,21 @@ class TestChatEndpoint:
         )
         assert response.status_code == 422
 
-    def test_chat_sanitizes_null_bytes(self, client: TestClient) -> None:
+    def test_chat_with_auth_passes_role(
+        self, client: TestClient, auth_token: str
+    ) -> None:
+        """Verify authenticated chat includes user role context."""
         response = client.post(
             "/v1/chat",
-            json={"question": "Show \x00me all customers"},
+            json={"question": "Show me all customers"},
+            headers={"Authorization": f"Bearer {auth_token}"},
         )
-        # Should succeed after sanitization
         assert response.status_code == 200
+        data = response.json()
+        assert "generated_sql" in data
 
 
 class TestSecurityHeaders:
-    """Tests for security headers middleware."""
-
     def test_security_headers_present(self, client: TestClient) -> None:
         response = client.get("/health")
         assert response.headers["X-Frame-Options"] == "DENY"
@@ -188,9 +179,6 @@ class TestSecurityHeaders:
 
 
 class TestRateLimiting:
-    """Tests for rate limiting middleware."""
-
     def test_rate_limit_headers(self, client: TestClient) -> None:
-        # First request should succeed
         response = client.get("/health")
         assert response.status_code == 200

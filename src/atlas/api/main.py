@@ -15,6 +15,7 @@ from unittest.mock import MagicMock
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field, field_validator
 
 from atlas.agent.sql_agent import BaseLLM, MockLLM, OracleSQLAgent
@@ -225,6 +226,17 @@ app.include_router(audit_router)
 async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+@app.get("/metrics", include_in_schema=False)
+async def prometheus_metrics() -> Response:
+    """Prometheus metrics endpoint."""
+    from atlas.api.metrics import get_metrics
+
+    return Response(
+        content=get_metrics().render(),
+        media_type="text/plain; charset=utf-8",
+    )
 
 
 @app.get("/v1/security")

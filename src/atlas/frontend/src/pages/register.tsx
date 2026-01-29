@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/language-toggle";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { setAuthToken } from "@/lib/queryClient";
 
 function useReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -79,6 +80,7 @@ export default function RegisterPage() {
       const data = await response.json();
       
       if (response.ok) {
+        setAuthToken(data.access_token);
         window.location.href = "/";
       } else {
         setError(data.message || t.auth.registrationFailed);
