@@ -1,5 +1,6 @@
 """Unsloth LLM Integration - Real language model for SQL generation using Qwen."""
 
+import asyncio
 import os
 import re
 from typing import Any
@@ -61,6 +62,7 @@ class UnslothLLM(BaseLLM):
         self._loaded = False
         self._prefix_cache: dict[str, Any] = {}
         self._cache_max_size = 32
+        self._inference_lock = asyncio.Lock()
 
     def load_model(self) -> None:
         """Load the Unsloth model and tokenizer."""
@@ -141,6 +143,12 @@ class UnslothLLM(BaseLLM):
         if not self._loaded:
             self.load_model()
 
+        # Serialize GPU inference to prevent concurrent CUDA access
+        async with self._inference_lock:
+            return await self._generate_locked(prompt)
+
+    async def _generate_locked(self, prompt: str) -> str:
+        """Run inference while holding the lock."""
         # Tokenize input
         inputs = self._tokenizer(
             prompt,
