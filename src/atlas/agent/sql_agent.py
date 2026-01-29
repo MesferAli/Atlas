@@ -142,19 +142,31 @@ class OracleSQLAgent:
             question=question,
         )
 
-    async def run(self, question: str, table_limit: int = 5) -> AgentResponse:
+    async def run(
+        self,
+        question: str,
+        table_limit: int = 5,
+        user_role: str | None = None,
+    ) -> AgentResponse:
         """
         Process a natural language question and return SQL results.
 
         Args:
             question: Natural language question (e.g., "Show me top 5 customers")
             table_limit: Maximum number of relevant tables to consider
+            user_role: User's RBAC role for Data Moat filtering
 
         Returns:
             AgentResponse with generated SQL and query results
         """
         # Step 1: Find relevant tables using semantic search
         relevant_tables = self._indexer.search_tables(question, limit=table_limit)
+
+        # Step 1.5: Apply Data Moat role-based filtering if role provided
+        if user_role and relevant_tables:
+            from atlas.connectors.oracle.data_moat import filter_tables_by_role
+
+            relevant_tables = filter_tables_by_role(relevant_tables, user_role)
 
         # Step 2: Build prompt with schema context
         prompt = self._build_prompt(question, relevant_tables)

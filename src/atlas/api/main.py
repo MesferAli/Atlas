@@ -292,7 +292,8 @@ async def chat(
         client_ip = http_request.client.host
 
     try:
-        response = await _agent.run(request.question)
+        user_role = user.role.value if user else None
+        response = await _agent.run(request.question, user_role=user_role)
 
         # Log successful query
         audit.log(
