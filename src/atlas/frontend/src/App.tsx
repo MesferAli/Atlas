@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { AIFab } from "@/components/atlas/ai-fab";
 
 // Pages
 import Dashboard from "@/pages/dashboard";
@@ -55,6 +56,7 @@ function App() {
                 </main>
               </div>
             </SidebarProvider>
+            <AIFab />
             <Toaster />
           </TooltipProvider>
         </I18nProvider>

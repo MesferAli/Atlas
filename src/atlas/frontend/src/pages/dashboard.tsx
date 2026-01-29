@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/page-header";
-import { OracleChat } from "@/components/OracleChat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +16,15 @@ import {
   TrendingUp,
   Activity,
   CheckCircle2,
+  AlertTriangle,
+  Zap,
+  Eye,
+  FileBarChart,
 } from "lucide-react";
 import { Link } from "wouter";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// ── Stat Card ───────────────────────────────────────────────────────
 function StatCard({
   icon: Icon,
   label,
@@ -80,6 +84,37 @@ function StatCard({
   );
 }
 
+// ── Proactive Insight Card ──────────────────────────────────────────
+function InsightRow({
+  icon: Icon,
+  color,
+  title,
+  description,
+  time,
+}: {
+  icon: React.ElementType;
+  color: string;
+  title: string;
+  description: string;
+  time: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/40 transition-colors group">
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color} bg-opacity-10`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium">{title}</p>
+        <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5 line-clamp-2">
+          {description}
+        </p>
+      </div>
+      <span className="text-[10px] text-muted-foreground font-mono shrink-0 mt-0.5">{time}</span>
+    </div>
+  );
+}
+
+// ── Main Dashboard ──────────────────────────────────────────────────
 export default function Dashboard() {
   const { data: securityData } = useQuery<{
     security_mode: string;
@@ -91,8 +126,8 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full">
       <PageHeader
-        title="Dashboard"
-        description="Atlas AI Orchestration Platform"
+        title="Operations Center"
+        description="Atlas AI — Proactive operational intelligence"
         actions={
           <Link href="/settings">
             <Button variant="outline" size="sm" className="gap-2">
@@ -140,11 +175,98 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Main Content */}
+          {/* Main Content: 2 columns */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Oracle Chat */}
-            <div className="lg:col-span-2">
-              <OracleChat />
+            {/* Left: Proactive Insights + Recent Queries */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* AI Proactive Insights */}
+              <Card className="border-0 shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-violet-500" />
+                    AI Proactive Insights
+                    <Badge variant="secondary" className="text-[9px] ml-auto">
+                      Live
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1 pt-0">
+                  <InsightRow
+                    icon={AlertTriangle}
+                    color="text-amber-500"
+                    title="Unusual access pattern detected"
+                    description="3x spike in HR_EMPLOYEES queries from non-HR users in the last hour. Recommend reviewing access policies."
+                    time="12m ago"
+                  />
+                  <InsightRow
+                    icon={TrendingUp}
+                    color="text-emerald-500"
+                    title="Query optimization opportunity"
+                    description="PO_HEADERS sequential scans can be reduced 60% by adding index on VENDOR_ID. Estimated saving: 2.3s/query."
+                    time="1h ago"
+                  />
+                  <InsightRow
+                    icon={Shield}
+                    color="text-blue-500"
+                    title="PDPL audit passed"
+                    description="Scheduled PDPL compliance scan completed — 0 unmasked PII found in recent query results across all tables."
+                    time="3h ago"
+                  />
+                  <InsightRow
+                    icon={FileBarChart}
+                    color="text-rose-500"
+                    title="Daily report ready"
+                    description="Operations summary generated: 24 queries processed, 0 security events, top table: AP_INVOICES_ALL."
+                    time="6h ago"
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Recent Operations */}
+              <Card className="border-0 shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-amber-500" />
+                    Recent Operations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {[
+                      { query: "Top 10 employees by salary", tables: "HR_EMPLOYEES", status: "success", rows: 10, time: "2m ago" },
+                      { query: "Active purchase orders this month", tables: "PO_HEADERS_ALL", status: "success", rows: 47, time: "18m ago" },
+                      { query: "عرض الفواتير المعلقة", tables: "AP_INVOICES_ALL", status: "success", rows: 12, time: "45m ago" },
+                      { query: "Department headcount report", tables: "HR_EMPLOYEES, HR_DEPARTMENTS", status: "success", rows: 8, time: "1h ago" },
+                      { query: "Delete old records", tables: "—", status: "blocked", rows: 0, time: "2h ago" },
+                    ].map((op, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/40 transition-colors"
+                      >
+                        <div className={`h-2 w-2 rounded-full shrink-0 ${
+                          op.status === "success" ? "bg-emerald-500" : "bg-red-500"
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium truncate">{op.query}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">{op.tables}</p>
+                        </div>
+                        {op.status === "success" ? (
+                          <Badge variant="secondary" className="text-[9px] font-mono px-1.5 py-0">
+                            {op.rows} rows
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
+                            Blocked
+                          </Badge>
+                        )}
+                        <span className="text-[10px] text-muted-foreground font-mono w-12 text-right shrink-0">
+                          {op.time}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Right Sidebar */}
@@ -229,7 +351,7 @@ export default function Dashboard() {
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-amber-500" />
+                    <Eye className="h-4 w-4 text-amber-500" />
                     Quick Actions
                   </CardTitle>
                 </CardHeader>
