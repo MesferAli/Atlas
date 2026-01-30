@@ -20,6 +20,8 @@ from pydantic import BaseModel, Field, field_validator
 from atlas.agent.sql_agent import BaseLLM, MockLLM, OracleSQLAgent
 from atlas.api.routes.audit import router as audit_router
 from atlas.api.routes.auth import router as auth_router
+from atlas.api.routes.enterprise import router as enterprise_router
+from atlas.api.mcp_server import router as mcp_router
 from atlas.api.security.audit import AuditEventType, get_audit_logger
 from atlas.api.security.auth import TokenPayload, get_current_user_optional
 from atlas.api.security.middleware import setup_security_middleware
@@ -219,6 +221,12 @@ app.include_router(auth_router)
 
 # Include audit routes
 app.include_router(audit_router)
+
+# Include enterprise bridge routes (Wafer ERP integration)
+app.include_router(enterprise_router)
+
+# Include MCP server routes (IDE/local tool integration)
+app.include_router(mcp_router)
 
 
 @app.get("/health")

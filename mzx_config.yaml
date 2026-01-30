@@ -1,0 +1,39 @@
+# MZX Protocol Configuration
+# The Official Intellectual Identity for XCircle Ecosystem
+
+identity:
+  name: "MZX"
+  version: "1.0.0"
+  organization: "XCircle Enterprise Solutions"
+
+signature:
+  prefix: "MZX"
+  format: "MZX-{product}-{date}-{uuid}"
+  product: "ATLAS"
+
+agent:
+  name: "Atlas"
+  role: "MZX-certified AI teammate"
+  system_prompt: "You are Atlas, an MZX-certified AI teammate for XCircle Enterprise Solutions."
+  max_tokens: 256
+  temperature: 0.1
+
+security:
+  require_mzx_auth: true
+  audit_all_interactions: true
+  sign_responses: true
+
+tools:
+  audit_image_quality:
+    enabled: true
+    blur_threshold: 100.0
+    luminance_min: 30
+    luminance_max: 220
+  verify_annotations:
+    enabled: true
+    overlap_iou_threshold: 0.5
+    min_area: 10
+
+enterprise:
+  erp_endpoint: "/audit"
+  mzx_verified_json: true
