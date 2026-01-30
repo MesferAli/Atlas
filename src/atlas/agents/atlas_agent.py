@@ -1,6 +1,6 @@
 """Atlas Agent — Primary MZX-certified AI agent using Pydantic-AI patterns.
 
-This agent orchestrates tool calls for data auditing, annotation verification,
+This agent orchestrates tool calls for enterprise data operations
 and natural language queries against enterprise databases. Every interaction
 is signed with the MZX protocol for end-to-end traceability.
 """
@@ -107,8 +107,8 @@ class AtlasAgent:
     System prompt: "You are Atlas, an MZX-certified AI teammate."
 
     Capabilities:
-    - Autonomous tool-calling for data quality auditing
-    - Natural language understanding for enterprise queries
+    - Natural language understanding for enterprise data queries
+    - Extensible tool registry for enterprise operations
     - MZX-signed traceability on every interaction
     """
 
@@ -173,10 +173,6 @@ class AtlasAgent:
     def _classify_intent(self, message: str) -> str:
         """Classify the user's intent from the message."""
         msg_lower = message.lower()
-        if any(kw in msg_lower for kw in ["blur", "quality", "image", "luminance"]):
-            return "audit_image_quality"
-        if any(kw in msg_lower for kw in ["annotation", "label", "overlap", "bbox"]):
-            return "verify_annotations"
         if any(kw in msg_lower for kw in ["query", "sql", "table", "employee", "salary"]):
             return "database_query"
         if any(kw in msg_lower for kw in ["استعلام", "جدول", "موظف", "رواتب"]):
@@ -186,8 +182,6 @@ class AtlasAgent:
     def _select_tool(self, intent: str, message: str) -> str | None:
         """Select the best tool for the classified intent."""
         intent_tool_map = {
-            "audit_image_quality": "audit_image_quality",
-            "verify_annotations": "verify_annotations",
             "database_query": "database_query",
         }
         tool = intent_tool_map.get(intent)

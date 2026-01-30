@@ -5,7 +5,6 @@ SECURITY ARCHITECTURE - BACKEND ENFORCEMENT:
 - All data access MUST go through authenticated server-side endpoints
 - Row Level Security (RLS) policies are enforced at the database layer
 - Input validation is performed using Pydantic models with strict constraints
-- Webhook signatures MUST be verified cryptographically
 - Audit logging captures all sensitive operations
 
 This module implements the Security & Architecture Manifesto requirements.
@@ -37,10 +36,6 @@ from atlas.api.security.models import (
     UserProfile,
     validate_input,
 )
-from atlas.api.security.webhooks import (
-    WebhookVerificationError,
-    verify_webhook_signature,
-)
 
 __all__ = [
     # Models
@@ -65,7 +60,4 @@ __all__ = [
     "AuditLogger",
     "AuditEvent",
     "AuditEventType",
-    # Webhooks
-    "verify_webhook_signature",
-    "WebhookVerificationError",
 ]

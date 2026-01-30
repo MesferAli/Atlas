@@ -1,6 +1,7 @@
-"""Atlas Tools — Audit, analysis, and verification functions with MZX traceability."""
+"""Atlas Tools — Enterprise data tools with MZX traceability.
 
-from atlas.tools.image_audit import audit_image_quality
-from atlas.tools.annotation_verify import verify_annotations
+CV tools (image_audit, annotation_verify) have been moved to SelectX.
+Atlas tools focus on enterprise data operations only.
+"""
 
-__all__ = ["audit_image_quality", "verify_annotations"]
+__all__: list[str] = []

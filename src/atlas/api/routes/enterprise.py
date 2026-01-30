@@ -13,7 +13,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from atlas.agents.atlas_agent import AgentDeps, AtlasAgent
-from atlas.agents.orchestrator import AtlasOrchestrator
 from atlas.api.security.auth import TokenPayload, get_current_user
 from atlas.core.mzx_protocol import MZXSignature, generate_mzx_id
 
@@ -28,7 +27,7 @@ class AuditRequest(BaseModel):
 
     audit_type: str = Field(
         ...,
-        description="Type of audit: 'image_quality', 'annotations', 'data_query', 'full'",
+        description="Type of audit: 'data_query'",
     )
     target: str = Field(
         ...,
@@ -84,14 +83,9 @@ async def run_enterprise_audit(
         query += f" with parameters: {request.parameters}"
 
     try:
-        if request.audit_type == "full":
-            orchestrator = AtlasOrchestrator(deps=deps)
-            result = await orchestrator.run(query)
-            result_data = result.model_dump()
-        else:
-            agent = AtlasAgent(deps=deps)
-            result = await agent.run(query)
-            result_data = result.model_dump()
+        agent = AtlasAgent(deps=deps)
+        result = await agent.run(query)
+        result_data = result.model_dump()
 
         return AuditResult(
             mzx_id=mzx_id,
@@ -131,7 +125,7 @@ async def audit_status(
         "mzx_id": mzx_id,
         "mzx_verified": True,
         "status": "operational",
-        "available_audit_types": ["image_quality", "annotations", "data_query", "full"],
+        "available_audit_types": ["data_query"],
         "registered_tools": {
             name: {"description": meta.description, "is_async": meta.is_async}
             for name, meta in tools.items()

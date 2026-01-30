@@ -64,8 +64,7 @@ Atlas (Saudi AI Middleware v2.1) is an enterprise-grade AI orchestration platfor
 
 #### Q3–Q4 2026 (Scale)
 - SAP and Microsoft Dynamics connectors
-- Custom fine-tuned models per customer
-- Marketplace for enterprise AI plugins
+- Advanced analytics dashboard
 
 ---
 
@@ -263,12 +262,6 @@ User Question → Semantic Search (Qdrant) → Find Relevant Tables
 | `Permissions-Policy` | geolocation, microphone, camera disabled | Feature policy |
 | `Cache-Control` | `no-store` | Prevent caching of API responses |
 
-**Webhook Verification:**
-- HMAC-SHA256 signature verification
-- Timestamp validation (300-second tolerance)
-- Constant-time comparison (timing attack prevention)
-- Supported providers: Stripe, LemonSqueezy
-
 ### 3.6 Feature 6: Web Dashboard (Frontend SPA)
 
 **Priority:** P1 — High
@@ -309,21 +302,21 @@ User Question → Semantic Search (Qdrant) → Find Relevant Tables
 - **Language Toggle**: Arabic/English switching with RTL support
 - **Export Button**: CSV/JSON export functionality
 
-### 3.7 Feature 7: Multi-Provider AI Routing
+### 3.7 Feature 7: AI Provider (Claude Primary)
 
 **Priority:** P1 — High
-**Status:** ✅ Implemented (core routing)
+**Status:** ✅ Implemented
 
-**Description:** Intelligent routing between AI providers based on cost, capability, and compliance requirements.
+**Description:** Claude as the primary AI provider for NL-to-SQL generation, with MockLLM for testing environments.
 
-**Supported Providers:**
+**Provider Stack (MVP):**
 
 | Provider | Use Case | Notes |
 |----------|----------|-------|
-| Claude (Anthropic) | Complex reasoning, analysis | Primary provider |
-| GPT-4o (OpenAI) | General purpose queries | Cost-optimized fallback |
-| ALLaM | Arabic-specific tasks | Saudi Arabic understanding |
-| Qwen (Unsloth) | SQL generation | Fine-tuned, 4-bit quantized, on-premises |
+| Claude (Anthropic) | NL-to-SQL generation, reasoning | Primary production provider |
+| MockLLM | Testing and development | Pattern-based SQL generation |
+
+> **Q2 Planned:** GPT-4o as cost-optimized fallback.
 
 **API Endpoints:**
 - `GET /v1/model` — Current LLM model information and status
@@ -571,18 +564,17 @@ pytest tests/unit/test_oracle_connector.py::TestValidateQuery::test_blocks_inser
 
 - [ ] Write-capable Oracle operations with approval workflows
 - [ ] Multi-tenant isolation
-- [ ] Advanced analytics dashboard
+- [ ] GPT-4o as cost-optimized fallback provider
 - [ ] SAP connector (read-only)
 - [ ] Expand to 20+ customers
 - [ ] MFA (multi-factor authentication)
+- [ ] SAML/SSO for enterprise customers
+- [ ] Qdrant cluster mode for high availability
 
 ### 9.3 Q3–Q4 2026 — Scale
 
 - [ ] SAP and Microsoft Dynamics connectors
-- [ ] Custom fine-tuned models per customer
-- [ ] AI plugin marketplace
-- [ ] Real-time streaming query results
-- [ ] Mobile application
+- [ ] Advanced analytics dashboard
 
 ---
 
@@ -1037,23 +1029,33 @@ Atlas يستهدف الربع العلوي الأيمن: **حلول مؤسسية
 
 ```
 src/atlas/
+├── core/
+│   ├── mzx_protocol.py            # MZX Identity: signature engine, base model, @mzx_signed
+│   ├── config.py                  # AtlasConfig loader (mzx_config.yaml)
+│   └── logging.py                 # MZX-aware structured JSON logging
+├── agents/
+│   └── atlas_agent.py             # AtlasAgent: tool registry, intent classification, MZX-signed
 ├── api/
 │   ├── main.py                    # FastAPI app, /health, /v1/chat, /v1/security
+│   ├── mcp_server.py              # MCP protocol server (/mcp/*)
 │   ├── routes/
 │   │   ├── auth.py                # /api/auth/* endpoints
-│   │   └── audit.py               # /api/audit/* endpoints
+│   │   ├── audit.py               # /api/audit/* endpoints
+│   │   └── enterprise.py          # /api/enterprise/audit (Wafer ERP bridge)
 │   └── security/
 │       ├── auth.py                # JWT + bcrypt authentication
 │       ├── models.py              # Pydantic models, RBAC roles
 │       ├── audit.py               # Append-only audit logging
-│       ├── middleware.py          # Rate limiting, security headers
-│       └── webhooks.py            # Webhook HMAC verification
-├── connectors/oracle/
-│   ├── connector.py               # OracleConnector: validate_query() + execution
-│   └── indexer.py                 # OracleSchemaIndexer: Qdrant semantic search
+│       └── middleware.py          # Rate limiting, security headers
+├── connectors/
+│   ├── oracle/
+│   │   ├── connector.py           # OracleConnector: validate_query() + execution
+│   │   └── indexer.py             # OracleSchemaIndexer: Qdrant semantic search
+│   └── picsellia.py               # Picsellia dataset/asset connector (optional)
 ├── agent/
 │   ├── sql_agent.py               # OracleSQLAgent: NL-to-SQL RAG pipeline
 │   └── unsloth_llm.py            # Qwen model via Unsloth (4-bit)
+├── tools/                         # Enterprise data tools (CV tools moved to SelectX)
 └── frontend/
     └── src/
         ├── App.tsx                # Main app with routing

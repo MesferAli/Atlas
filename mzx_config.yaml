@@ -23,16 +23,9 @@ security:
   audit_all_interactions: true
   sign_responses: true
 
-tools:
-  audit_image_quality:
-    enabled: true
-    blur_threshold: 100.0
-    luminance_min: 30
-    luminance_max: 220
-  verify_annotations:
-    enabled: true
-    overlap_iou_threshold: 0.5
-    min_area: 10
+tools: {}
+  # CV tools (image_audit, annotation_verify) moved to SelectX
+  # Register enterprise data tools here as needed
 
 enterprise:
   erp_endpoint: "/audit"
