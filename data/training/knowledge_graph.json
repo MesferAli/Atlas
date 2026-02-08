@@ -1,0 +1,3910 @@
+{
+  "nodes": [
+    {
+      "id": "domain_HR",
+      "type": "domain",
+      "name": "HR",
+      "name_ar": "الموارد البشرية",
+      "description": "Human Resources and Payroll",
+      "description_ar": "إدارة الموارد البشرية والرواتب",
+      "properties": {}
+    },
+    {
+      "id": "domain_FINANCE",
+      "type": "domain",
+      "name": "FINANCE",
+      "name_ar": "المالية",
+      "description": "General Ledger, Payables, Receivables",
+      "description_ar": "دفتر الأستاذ العام والذمم الدائنة والمدينة",
+      "properties": {}
+    },
+    {
+      "id": "domain_PROCUREMENT",
+      "type": "domain",
+      "name": "PROCUREMENT",
+      "name_ar": "المشتريات",
+      "description": "Purchasing and Supplier Management",
+      "description_ar": "إدارة المشتريات والموردين",
+      "properties": {}
+    },
+    {
+      "id": "domain_INVENTORY",
+      "type": "domain",
+      "name": "INVENTORY",
+      "name_ar": "المخزون",
+      "description": "Inventory and Stock Management",
+      "description_ar": "إدارة المخزون والمستودعات",
+      "properties": {}
+    },
+    {
+      "id": "table_PER_ALL_PEOPLE_F",
+      "type": "table",
+      "name": "PER_ALL_PEOPLE_F",
+      "name_ar": "per all people f",
+      "description": "The master table for all person records (Employees, Contingent Workers). Contains DateTracked personal details.",
+      "description_ar": "the master table for all person records (employees, contingent workers). contains datetracked personal details.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "PER_EMPLOYEE_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_PERSON_ID",
+      "type": "column",
+      "name": "PERSON_ID",
+      "name_ar": "person id",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_PERSON_NUMBER",
+      "type": "column",
+      "name": "PERSON_NUMBER",
+      "name_ar": "person number",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": "Business Key"
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_EFFECTIVE_START_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_START_DATE",
+      "name_ar": "effective start date",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_EFFECTIVE_END_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_END_DATE",
+      "name_ar": "effective end date",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_START_DATE",
+      "type": "column",
+      "name": "START_DATE",
+      "name_ar": "start date",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": "Hire Date"
+      }
+    },
+    {
+      "id": "column_PER_ALL_PEOPLE_F_FULL_NAME",
+      "type": "column",
+      "name": "FULL_NAME",
+      "name_ar": "full name",
+      "description": "Column in PER_ALL_PEOPLE_F",
+      "description_ar": "عمود في per all people f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PER_ALL_ASSIGNMENTS_M",
+      "type": "table",
+      "name": "PER_ALL_ASSIGNMENTS_M",
+      "name_ar": "per all assignments m",
+      "description": "Contains employment terms, assignment status, job, position, grade, and department (Organization) details.",
+      "description_ar": "contains employment terms, assignment status, job, position, grade, and قسم (organization) details.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "LINE_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_ASSIGNMENT_ID",
+      "type": "column",
+      "name": "ASSIGNMENT_ID",
+      "name_ar": "assignment id",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_PERSON_ID",
+      "type": "column",
+      "name": "PERSON_ID",
+      "name_ar": "person id",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_JOB_ID",
+      "type": "column",
+      "name": "JOB_ID",
+      "name_ar": "وظيفة id",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_ORGANIZATION_ID",
+      "type": "column",
+      "name": "ORGANIZATION_ID",
+      "name_ar": "منظمة id",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_ASSIGNMENT_TYPE",
+      "type": "column",
+      "name": "ASSIGNMENT_TYPE",
+      "name_ar": "assignment type",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": "E=Employee, C=Contingent"
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_EFFECTIVE_LATEST_CHANGE",
+      "type": "column",
+      "name": "EFFECTIVE_LATEST_CHANGE",
+      "name_ar": "effective latest change",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ALL_ASSIGNMENTS_M_LOCATION_ID",
+      "type": "column",
+      "name": "LOCATION_ID",
+      "name_ar": "موقع id",
+      "description": "Column in PER_ALL_ASSIGNMENTS_M",
+      "description_ar": "عمود في per all assignments m",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_CMP_ASG_SALARY",
+      "type": "table",
+      "name": "CMP_ASG_SALARY",
+      "name_ar": "cmp asg راتب",
+      "description": "Stores salary amount, components, and currency. HIGHLY SENSITIVE financial data.",
+      "description_ar": "stores راتب amount, components, and currency. highly sensitive financial data.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "PAYROLL_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_SALARY_ID",
+      "type": "column",
+      "name": "SALARY_ID",
+      "name_ar": "راتب id",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_ASSIGNMENT_ID",
+      "type": "column",
+      "name": "ASSIGNMENT_ID",
+      "name_ar": "assignment id",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_SALARY_AMOUNT",
+      "type": "column",
+      "name": "SALARY_AMOUNT",
+      "name_ar": "راتب amount",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_CURRENCY_CODE",
+      "type": "column",
+      "name": "CURRENCY_CODE",
+      "name_ar": "currency code",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_DATE_FROM",
+      "type": "column",
+      "name": "DATE_FROM",
+      "name_ar": "date from",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_DATE_TO",
+      "type": "column",
+      "name": "DATE_TO",
+      "name_ar": "date to",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_CMP_ASG_SALARY_SALARY_BASIS_ID",
+      "type": "column",
+      "name": "SALARY_BASIS_ID",
+      "name_ar": "راتب basis id",
+      "description": "Column in CMP_ASG_SALARY",
+      "description_ar": "عمود في cmp asg راتب",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PAY_PAYROLL_RELATIONS",
+      "type": "table",
+      "name": "PAY_PAYROLL_RELATIONS",
+      "name_ar": "pay payroll relations",
+      "description": "Links a person to a payroll statutory unit and legislative data group (LDG). Critical for Saudi Payroll.",
+      "description_ar": "links a person to a payroll statutory unit and legislative data group (ldg). critical for saudi payroll.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "PAYROLL_ADMIN_ROLE"
+      }
+    },
+    {
+      "id": "column_PAY_PAYROLL_RELATIONS_PAYROLL_RELATIONSHIP_ID",
+      "type": "column",
+      "name": "PAYROLL_RELATIONSHIP_ID",
+      "name_ar": "payroll relationship id",
+      "description": "Column in PAY_PAYROLL_RELATIONS",
+      "description_ar": "عمود في pay payroll relations",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PAY_PAYROLL_RELATIONS_PERSON_ID",
+      "type": "column",
+      "name": "PERSON_ID",
+      "name_ar": "person id",
+      "description": "Column in PAY_PAYROLL_RELATIONS",
+      "description_ar": "عمود في pay payroll relations",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PAY_PAYROLL_RELATIONS_LEGISLATIVE_DATA_GROUP_ID",
+      "type": "column",
+      "name": "LEGISLATIVE_DATA_GROUP_ID",
+      "name_ar": "legislative data group id",
+      "description": "Column in PAY_PAYROLL_RELATIONS",
+      "description_ar": "عمود في pay payroll relations",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PAY_PAYROLL_RELATIONS_START_DATE",
+      "type": "column",
+      "name": "START_DATE",
+      "name_ar": "start date",
+      "description": "Column in PAY_PAYROLL_RELATIONS",
+      "description_ar": "عمود في pay payroll relations",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "function_GET_PAY_AMOUNT",
+      "type": "function",
+      "name": "GET_PAY_AMOUNT",
+      "name_ar": "get pay amount",
+      "description": "Calculates the net pay or specific element value for a given assignment and date range.",
+      "description_ar": "calculates the net pay or specific element value for a given assignment and date range.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "PAYROLL_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "table_PO_HEADERS_ALL",
+      "type": "table",
+      "name": "PO_HEADERS_ALL",
+      "name_ar": "po headers all",
+      "description": "Stores purchase order headers including supplier info, amounts, and approval status. Core procurement table.",
+      "description_ar": "stores purchase order headers including مورد info, amounts, and approval status. core procurement table.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "PROCUREMENT_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_PO_HEADER_ID",
+      "type": "column",
+      "name": "PO_HEADER_ID",
+      "name_ar": "po header id",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_SEGMENT1",
+      "type": "column",
+      "name": "SEGMENT1",
+      "name_ar": "segment1",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": "PO Number"
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_VENDOR_ID",
+      "type": "column",
+      "name": "VENDOR_ID",
+      "name_ar": "مورد id",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_VENDOR_SITE_ID",
+      "type": "column",
+      "name": "VENDOR_SITE_ID",
+      "name_ar": "مورد site id",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_CURRENCY_CODE",
+      "type": "column",
+      "name": "CURRENCY_CODE",
+      "name_ar": "currency code",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_TOTAL_AMOUNT",
+      "type": "column",
+      "name": "TOTAL_AMOUNT",
+      "name_ar": "total amount",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_AUTHORIZATION_STATUS",
+      "type": "column",
+      "name": "AUTHORIZATION_STATUS",
+      "name_ar": "authorization status",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_APPROVED_DATE",
+      "type": "column",
+      "name": "APPROVED_DATE",
+      "name_ar": "approved date",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_CREATED_BY",
+      "type": "column",
+      "name": "CREATED_BY",
+      "name_ar": "created by",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_HEADERS_ALL_CREATION_DATE",
+      "type": "column",
+      "name": "CREATION_DATE",
+      "name_ar": "creation date",
+      "description": "Column in PO_HEADERS_ALL",
+      "description_ar": "عمود في po headers all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PO_LINES_ALL",
+      "type": "table",
+      "name": "PO_LINES_ALL",
+      "name_ar": "po lines all",
+      "description": "Purchase order line items with item details, quantities, and unit prices.",
+      "description_ar": "purchase order line items with صنف details, quantities, and unit prices.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "PROCUREMENT_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_PO_LINE_ID",
+      "type": "column",
+      "name": "PO_LINE_ID",
+      "name_ar": "po line id",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_PO_HEADER_ID",
+      "type": "column",
+      "name": "PO_HEADER_ID",
+      "name_ar": "po header id",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_LINE_NUM",
+      "type": "column",
+      "name": "LINE_NUM",
+      "name_ar": "line num",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_ITEM_ID",
+      "type": "column",
+      "name": "ITEM_ID",
+      "name_ar": "صنف id",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_ITEM_DESCRIPTION",
+      "type": "column",
+      "name": "ITEM_DESCRIPTION",
+      "name_ar": "صنف description",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_QUANTITY",
+      "type": "column",
+      "name": "QUANTITY",
+      "name_ar": "quantity",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_UNIT_PRICE",
+      "type": "column",
+      "name": "UNIT_PRICE",
+      "name_ar": "unit price",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PO_LINES_ALL_AMOUNT",
+      "type": "column",
+      "name": "AMOUNT",
+      "name_ar": "amount",
+      "description": "Column in PO_LINES_ALL",
+      "description_ar": "عمود في po lines all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_AP_INVOICES_ALL",
+      "type": "table",
+      "name": "AP_INVOICES_ALL",
+      "name_ar": "ap invoices all",
+      "description": "Accounts Payable invoices from suppliers. Contains invoice amounts, payment terms, and status.",
+      "description_ar": "accounts payable invoices from suppliers. contains فاتورة amounts, دفعة terms, and status.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "AP_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_INVOICE_ID",
+      "type": "column",
+      "name": "INVOICE_ID",
+      "name_ar": "فاتورة id",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_INVOICE_NUM",
+      "type": "column",
+      "name": "INVOICE_NUM",
+      "name_ar": "فاتورة num",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_VENDOR_ID",
+      "type": "column",
+      "name": "VENDOR_ID",
+      "name_ar": "مورد id",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_INVOICE_DATE",
+      "type": "column",
+      "name": "INVOICE_DATE",
+      "name_ar": "فاتورة date",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_INVOICE_AMOUNT",
+      "type": "column",
+      "name": "INVOICE_AMOUNT",
+      "name_ar": "فاتورة amount",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_AMOUNT_PAID",
+      "type": "column",
+      "name": "AMOUNT_PAID",
+      "name_ar": "amount paid",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_PAYMENT_STATUS_FLAG",
+      "type": "column",
+      "name": "PAYMENT_STATUS_FLAG",
+      "name_ar": "دفعة status flag",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_CURRENCY_CODE",
+      "type": "column",
+      "name": "CURRENCY_CODE",
+      "name_ar": "currency code",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_INVOICES_ALL_DUE_DATE",
+      "type": "column",
+      "name": "DUE_DATE",
+      "name_ar": "due date",
+      "description": "Column in AP_INVOICES_ALL",
+      "description_ar": "عمود في ap invoices all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_AP_PAYMENTS_ALL",
+      "type": "table",
+      "name": "AP_PAYMENTS_ALL",
+      "name_ar": "ap payments all",
+      "description": "Payment records for supplier invoices. Contains bank account info and payment amounts. SENSITIVE.",
+      "description_ar": "دفعة records for مورد invoices. contains bank account info and دفعة amounts. sensitive.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "AP_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_PAYMENT_ID",
+      "type": "column",
+      "name": "PAYMENT_ID",
+      "name_ar": "دفعة id",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_PAYMENT_NUM",
+      "type": "column",
+      "name": "PAYMENT_NUM",
+      "name_ar": "دفعة num",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_VENDOR_ID",
+      "type": "column",
+      "name": "VENDOR_ID",
+      "name_ar": "مورد id",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_PAYMENT_AMOUNT",
+      "type": "column",
+      "name": "PAYMENT_AMOUNT",
+      "name_ar": "دفعة amount",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_PAYMENT_DATE",
+      "type": "column",
+      "name": "PAYMENT_DATE",
+      "name_ar": "دفعة date",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_BANK_ACCOUNT_ID",
+      "type": "column",
+      "name": "BANK_ACCOUNT_ID",
+      "name_ar": "bank account id",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_PAYMENT_METHOD_CODE",
+      "type": "column",
+      "name": "PAYMENT_METHOD_CODE",
+      "name_ar": "دفعة method code",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AP_PAYMENTS_ALL_STATUS",
+      "type": "column",
+      "name": "STATUS",
+      "name_ar": "status",
+      "description": "Column in AP_PAYMENTS_ALL",
+      "description_ar": "عمود في ap payments all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_AR_CUSTOMERS",
+      "type": "table",
+      "name": "AR_CUSTOMERS",
+      "name_ar": "ar customers",
+      "description": "Customer master data for Accounts Receivable. Contains customer details and credit info.",
+      "description_ar": "عميل master data for accounts receivable. contains عميل details and credit info.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "AR_CLERK_ROLE"
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_CUSTOMER_ID",
+      "type": "column",
+      "name": "CUSTOMER_ID",
+      "name_ar": "عميل id",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_CUSTOMER_NUMBER",
+      "type": "column",
+      "name": "CUSTOMER_NUMBER",
+      "name_ar": "عميل number",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_CUSTOMER_NAME",
+      "type": "column",
+      "name": "CUSTOMER_NAME",
+      "name_ar": "عميل name",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_CUSTOMER_TYPE",
+      "type": "column",
+      "name": "CUSTOMER_TYPE",
+      "name_ar": "عميل type",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_CREDIT_LIMIT",
+      "type": "column",
+      "name": "CREDIT_LIMIT",
+      "name_ar": "credit limit",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_TAX_REGISTRATION_NUMBER",
+      "type": "column",
+      "name": "TAX_REGISTRATION_NUMBER",
+      "name_ar": "tax registration number",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_CUSTOMERS_STATUS",
+      "type": "column",
+      "name": "STATUS",
+      "name_ar": "status",
+      "description": "Column in AR_CUSTOMERS",
+      "description_ar": "عمود في ar customers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_AR_INVOICES",
+      "type": "table",
+      "name": "AR_INVOICES",
+      "name_ar": "ar invoices",
+      "description": "Customer invoices and receivables. Contains amounts owed by customers.",
+      "description_ar": "عميل invoices and receivables. contains amounts owed by customers.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "AR_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_INVOICE_ID",
+      "type": "column",
+      "name": "INVOICE_ID",
+      "name_ar": "فاتورة id",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_INVOICE_NUMBER",
+      "type": "column",
+      "name": "INVOICE_NUMBER",
+      "name_ar": "فاتورة number",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_CUSTOMER_ID",
+      "type": "column",
+      "name": "CUSTOMER_ID",
+      "name_ar": "عميل id",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_INVOICE_DATE",
+      "type": "column",
+      "name": "INVOICE_DATE",
+      "name_ar": "فاتورة date",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_INVOICE_AMOUNT",
+      "type": "column",
+      "name": "INVOICE_AMOUNT",
+      "name_ar": "فاتورة amount",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_AMOUNT_DUE_REMAINING",
+      "type": "column",
+      "name": "AMOUNT_DUE_REMAINING",
+      "name_ar": "amount due remaining",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_DUE_DATE",
+      "type": "column",
+      "name": "DUE_DATE",
+      "name_ar": "due date",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_AR_INVOICES_STATUS",
+      "type": "column",
+      "name": "STATUS",
+      "name_ar": "status",
+      "description": "Column in AR_INVOICES",
+      "description_ar": "عمود في ar invoices",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_GL_JE_HEADERS",
+      "type": "table",
+      "name": "GL_JE_HEADERS",
+      "name_ar": "gl je headers",
+      "description": "General Ledger journal entry headers. Core financial posting records.",
+      "description_ar": "general ledger قيد يومية entry headers. core financial posting records.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "GL_ACCOUNTANT_ROLE"
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_JE_HEADER_ID",
+      "type": "column",
+      "name": "JE_HEADER_ID",
+      "name_ar": "je header id",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_LEDGER_ID",
+      "type": "column",
+      "name": "LEDGER_ID",
+      "name_ar": "ledger id",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_JE_BATCH_ID",
+      "type": "column",
+      "name": "JE_BATCH_ID",
+      "name_ar": "je batch id",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_PERIOD_NAME",
+      "type": "column",
+      "name": "PERIOD_NAME",
+      "name_ar": "period name",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_JE_CATEGORY",
+      "type": "column",
+      "name": "JE_CATEGORY",
+      "name_ar": "je category",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_JE_SOURCE",
+      "type": "column",
+      "name": "JE_SOURCE",
+      "name_ar": "je source",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_STATUS",
+      "type": "column",
+      "name": "STATUS",
+      "name_ar": "status",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_TOTAL_DEBIT",
+      "type": "column",
+      "name": "TOTAL_DEBIT",
+      "name_ar": "total debit",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_HEADERS_TOTAL_CREDIT",
+      "type": "column",
+      "name": "TOTAL_CREDIT",
+      "name_ar": "total credit",
+      "description": "Column in GL_JE_HEADERS",
+      "description_ar": "عمود في gl je headers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_GL_JE_LINES",
+      "type": "table",
+      "name": "GL_JE_LINES",
+      "name_ar": "gl je lines",
+      "description": "General Ledger journal entry line details with account codes and amounts.",
+      "description_ar": "general ledger قيد يومية entry line details with account codes and amounts.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "GL_ACCOUNTANT_ROLE"
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_JE_LINE_NUM",
+      "type": "column",
+      "name": "JE_LINE_NUM",
+      "name_ar": "je line num",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_JE_HEADER_ID",
+      "type": "column",
+      "name": "JE_HEADER_ID",
+      "name_ar": "je header id",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_CODE_COMBINATION_ID",
+      "type": "column",
+      "name": "CODE_COMBINATION_ID",
+      "name_ar": "code combination id",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_ENTERED_DR",
+      "type": "column",
+      "name": "ENTERED_DR",
+      "name_ar": "entered dr",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_ENTERED_CR",
+      "type": "column",
+      "name": "ENTERED_CR",
+      "name_ar": "entered cr",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_ACCOUNTED_DR",
+      "type": "column",
+      "name": "ACCOUNTED_DR",
+      "name_ar": "accounted dr",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_ACCOUNTED_CR",
+      "type": "column",
+      "name": "ACCOUNTED_CR",
+      "name_ar": "accounted cr",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_JE_LINES_DESCRIPTION",
+      "type": "column",
+      "name": "DESCRIPTION",
+      "name_ar": "description",
+      "description": "Column in GL_JE_LINES",
+      "description_ar": "عمود في gl je lines",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_GL_BALANCES",
+      "type": "table",
+      "name": "GL_BALANCES",
+      "name_ar": "gl balances",
+      "description": "Account balances by period. Used for financial reporting and analysis.",
+      "description_ar": "account balances by period. used for financial reporting and analysis.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "GL_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_LEDGER_ID",
+      "type": "column",
+      "name": "LEDGER_ID",
+      "name_ar": "ledger id",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_CODE_COMBINATION_ID",
+      "type": "column",
+      "name": "CODE_COMBINATION_ID",
+      "name_ar": "code combination id",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_PERIOD_NAME",
+      "type": "column",
+      "name": "PERIOD_NAME",
+      "name_ar": "period name",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_CURRENCY_CODE",
+      "type": "column",
+      "name": "CURRENCY_CODE",
+      "name_ar": "currency code",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_PERIOD_NET_DR",
+      "type": "column",
+      "name": "PERIOD_NET_DR",
+      "name_ar": "period net dr",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_PERIOD_NET_CR",
+      "type": "column",
+      "name": "PERIOD_NET_CR",
+      "name_ar": "period net cr",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_BEGIN_BALANCE_DR",
+      "type": "column",
+      "name": "BEGIN_BALANCE_DR",
+      "name_ar": "begin رصيد dr",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_GL_BALANCES_BEGIN_BALANCE_CR",
+      "type": "column",
+      "name": "BEGIN_BALANCE_CR",
+      "name_ar": "begin رصيد cr",
+      "description": "Column in GL_BALANCES",
+      "description_ar": "عمود في gl balances",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_POZ_SUPPLIERS",
+      "type": "table",
+      "name": "POZ_SUPPLIERS",
+      "name_ar": "poz suppliers",
+      "description": "Supplier/Vendor master data. Contains supplier details, tax info, and payment terms.",
+      "description_ar": "supplier/vendor master data. contains مورد details, tax info, and دفعة terms.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "PROCUREMENT_CLERK_ROLE"
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_VENDOR_ID",
+      "type": "column",
+      "name": "VENDOR_ID",
+      "name_ar": "مورد id",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_VENDOR_NAME",
+      "type": "column",
+      "name": "VENDOR_NAME",
+      "name_ar": "مورد name",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_VENDOR_NUMBER",
+      "type": "column",
+      "name": "VENDOR_NUMBER",
+      "name_ar": "مورد number",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_VENDOR_TYPE",
+      "type": "column",
+      "name": "VENDOR_TYPE",
+      "name_ar": "مورد type",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_TAX_REGISTRATION_NUMBER",
+      "type": "column",
+      "name": "TAX_REGISTRATION_NUMBER",
+      "name_ar": "tax registration number",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_PAYMENT_TERMS_ID",
+      "type": "column",
+      "name": "PAYMENT_TERMS_ID",
+      "name_ar": "دفعة terms id",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIERS_STATUS",
+      "type": "column",
+      "name": "STATUS",
+      "name_ar": "status",
+      "description": "Column in POZ_SUPPLIERS",
+      "description_ar": "عمود في poz suppliers",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_POZ_SUPPLIER_SITES",
+      "type": "table",
+      "name": "POZ_SUPPLIER_SITES",
+      "name_ar": "poz مورد sites",
+      "description": "Supplier site/location details including bank accounts. CONTAINS SENSITIVE BANK INFO.",
+      "description_ar": "مورد site/location details including bank accounts. contains sensitive bank info.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "PROCUREMENT_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_VENDOR_SITE_ID",
+      "type": "column",
+      "name": "VENDOR_SITE_ID",
+      "name_ar": "مورد site id",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_VENDOR_ID",
+      "type": "column",
+      "name": "VENDOR_ID",
+      "name_ar": "مورد id",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_VENDOR_SITE_CODE",
+      "type": "column",
+      "name": "VENDOR_SITE_CODE",
+      "name_ar": "مورد site code",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_ADDRESS_LINE1",
+      "type": "column",
+      "name": "ADDRESS_LINE1",
+      "name_ar": "address line1",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_CITY",
+      "type": "column",
+      "name": "CITY",
+      "name_ar": "city",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_COUNTRY",
+      "type": "column",
+      "name": "COUNTRY",
+      "name_ar": "country",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_BANK_ACCOUNT_NUM",
+      "type": "column",
+      "name": "BANK_ACCOUNT_NUM",
+      "name_ar": "bank account num",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_POZ_SUPPLIER_SITES_IBAN",
+      "type": "column",
+      "name": "IBAN",
+      "name_ar": "iban",
+      "description": "Column in POZ_SUPPLIER_SITES",
+      "description_ar": "عمود في poz مورد sites",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_HR_LOCATIONS_ALL",
+      "type": "table",
+      "name": "HR_LOCATIONS_ALL",
+      "name_ar": "hr locations all",
+      "description": "Organization locations and addresses. Used for employee work locations.",
+      "description_ar": "منظمة locations and addresses. used for موظف work locations.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "PER_EMPLOYEE_ROLE"
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_LOCATION_ID",
+      "type": "column",
+      "name": "LOCATION_ID",
+      "name_ar": "موقع id",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_LOCATION_CODE",
+      "type": "column",
+      "name": "LOCATION_CODE",
+      "name_ar": "موقع code",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_LOCATION_NAME",
+      "type": "column",
+      "name": "LOCATION_NAME",
+      "name_ar": "موقع name",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_ADDRESS_LINE_1",
+      "type": "column",
+      "name": "ADDRESS_LINE_1",
+      "name_ar": "address line 1",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_CITY",
+      "type": "column",
+      "name": "CITY",
+      "name_ar": "city",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_REGION",
+      "type": "column",
+      "name": "REGION",
+      "name_ar": "region",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_LOCATIONS_ALL_COUNTRY",
+      "type": "column",
+      "name": "COUNTRY",
+      "name_ar": "country",
+      "description": "Column in HR_LOCATIONS_ALL",
+      "description_ar": "عمود في hr locations all",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PER_JOBS_F",
+      "type": "table",
+      "name": "PER_JOBS_F",
+      "name_ar": "per jobs f",
+      "description": "Job definitions including job codes, titles, and grades.",
+      "description_ar": "وظيفة definitions including وظيفة codes, titles, and grades.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "PER_EMPLOYEE_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_JOB_ID",
+      "type": "column",
+      "name": "JOB_ID",
+      "name_ar": "وظيفة id",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_JOB_CODE",
+      "type": "column",
+      "name": "JOB_CODE",
+      "name_ar": "وظيفة code",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_NAME",
+      "type": "column",
+      "name": "NAME",
+      "name_ar": "name",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_JOB_FAMILY_ID",
+      "type": "column",
+      "name": "JOB_FAMILY_ID",
+      "name_ar": "وظيفة family id",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_EFFECTIVE_START_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_START_DATE",
+      "name_ar": "effective start date",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_JOBS_F_EFFECTIVE_END_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_END_DATE",
+      "name_ar": "effective end date",
+      "description": "Column in PER_JOBS_F",
+      "description_ar": "عمود في per jobs f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PER_GRADES_F",
+      "type": "table",
+      "name": "PER_GRADES_F",
+      "name_ar": "per grades f",
+      "description": "Grade definitions for compensation and job levels.",
+      "description_ar": "درجة definitions for compensation and وظيفة levels.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "LINE_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_GRADES_F_GRADE_ID",
+      "type": "column",
+      "name": "GRADE_ID",
+      "name_ar": "درجة id",
+      "description": "Column in PER_GRADES_F",
+      "description_ar": "عمود في per grades f",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_GRADES_F_GRADE_CODE",
+      "type": "column",
+      "name": "GRADE_CODE",
+      "name_ar": "درجة code",
+      "description": "Column in PER_GRADES_F",
+      "description_ar": "عمود في per grades f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_GRADES_F_NAME",
+      "type": "column",
+      "name": "NAME",
+      "name_ar": "name",
+      "description": "Column in PER_GRADES_F",
+      "description_ar": "عمود في per grades f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_GRADES_F_EFFECTIVE_START_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_START_DATE",
+      "name_ar": "effective start date",
+      "description": "Column in PER_GRADES_F",
+      "description_ar": "عمود في per grades f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_GRADES_F_EFFECTIVE_END_DATE",
+      "type": "column",
+      "name": "EFFECTIVE_END_DATE",
+      "name_ar": "effective end date",
+      "description": "Column in PER_GRADES_F",
+      "description_ar": "عمود في per grades f",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PER_ABSENCE_ENTRIES",
+      "type": "table",
+      "name": "PER_ABSENCE_ENTRIES",
+      "name_ar": "per غياب entries",
+      "description": "Employee absence and leave records. Contains leave types and durations.",
+      "description_ar": "موظف غياب and إجازة records. contains إجازة types and durations.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "LINE_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_ABSENCE_ENTRY_ID",
+      "type": "column",
+      "name": "ABSENCE_ENTRY_ID",
+      "name_ar": "غياب entry id",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_PERSON_ID",
+      "type": "column",
+      "name": "PERSON_ID",
+      "name_ar": "person id",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_ABSENCE_TYPE_ID",
+      "type": "column",
+      "name": "ABSENCE_TYPE_ID",
+      "name_ar": "غياب type id",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_START_DATE",
+      "type": "column",
+      "name": "START_DATE",
+      "name_ar": "start date",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_END_DATE",
+      "type": "column",
+      "name": "END_DATE",
+      "name_ar": "end date",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_DURATION",
+      "type": "column",
+      "name": "DURATION",
+      "name_ar": "duration",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_ABSENCE_ENTRIES_APPROVAL_STATUS",
+      "type": "column",
+      "name": "APPROVAL_STATUS",
+      "name_ar": "approval status",
+      "description": "Column in PER_ABSENCE_ENTRIES",
+      "description_ar": "عمود في per غياب entries",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_PER_PERFORMANCE_RATINGS",
+      "type": "table",
+      "name": "PER_PERFORMANCE_RATINGS",
+      "name_ar": "per أداء ratings",
+      "description": "Employee performance review ratings. CONFIDENTIAL HR data.",
+      "description_ar": "موظف أداء review ratings. confidential hr data.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "HR_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_PERFORMANCE_RATING_ID",
+      "type": "column",
+      "name": "PERFORMANCE_RATING_ID",
+      "name_ar": "أداء rating id",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_PERSON_ID",
+      "type": "column",
+      "name": "PERSON_ID",
+      "name_ar": "person id",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": false,
+        "is_fk": true,
+        "annotation": "FK"
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_REVIEW_PERIOD",
+      "type": "column",
+      "name": "REVIEW_PERIOD",
+      "name_ar": "review period",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_RATING_LEVEL",
+      "type": "column",
+      "name": "RATING_LEVEL",
+      "name_ar": "rating level",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_MANAGER_COMMENTS",
+      "type": "column",
+      "name": "MANAGER_COMMENTS",
+      "name_ar": "manager comments",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_PER_PERFORMANCE_RATINGS_REVIEW_DATE",
+      "type": "column",
+      "name": "REVIEW_DATE",
+      "name_ar": "review date",
+      "description": "Column in PER_PERFORMANCE_RATINGS",
+      "description_ar": "عمود في per أداء ratings",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_INV_ITEM_MASTER",
+      "type": "table",
+      "name": "INV_ITEM_MASTER",
+      "name_ar": "inv صنف master",
+      "description": "Inventory item master data. Contains item details, costs, and stock levels.",
+      "description_ar": "مخزون صنف master data. contains صنف details, costs, and stock levels.",
+      "properties": {
+        "classification": "INTERNAL",
+        "min_role": "INV_CLERK_ROLE"
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_INVENTORY_ITEM_ID",
+      "type": "column",
+      "name": "INVENTORY_ITEM_ID",
+      "name_ar": "مخزون صنف id",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_ITEM_NUMBER",
+      "type": "column",
+      "name": "ITEM_NUMBER",
+      "name_ar": "صنف number",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_ITEM_DESCRIPTION",
+      "type": "column",
+      "name": "ITEM_DESCRIPTION",
+      "name_ar": "صنف description",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_ITEM_TYPE",
+      "type": "column",
+      "name": "ITEM_TYPE",
+      "name_ar": "صنف type",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_UNIT_OF_MEASURE",
+      "type": "column",
+      "name": "UNIT_OF_MEASURE",
+      "name_ar": "unit of measure",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_LIST_PRICE",
+      "type": "column",
+      "name": "LIST_PRICE",
+      "name_ar": "list price",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ITEM_MASTER_STANDARD_COST",
+      "type": "column",
+      "name": "STANDARD_COST",
+      "name_ar": "standard cost",
+      "description": "Column in INV_ITEM_MASTER",
+      "description_ar": "عمود في inv صنف master",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "table_INV_ONHAND_QUANTITIES",
+      "type": "table",
+      "name": "INV_ONHAND_QUANTITIES",
+      "name_ar": "inv onhand quantities",
+      "description": "Current inventory stock levels by item and location.",
+      "description_ar": "current مخزون stock levels by صنف and location.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "INV_MANAGER_ROLE"
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_INVENTORY_ITEM_ID",
+      "type": "column",
+      "name": "INVENTORY_ITEM_ID",
+      "name_ar": "مخزون صنف id",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_ORGANIZATION_ID",
+      "type": "column",
+      "name": "ORGANIZATION_ID",
+      "name_ar": "منظمة id",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": true,
+        "is_fk": false,
+        "annotation": "PK"
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_SUBINVENTORY_CODE",
+      "type": "column",
+      "name": "SUBINVENTORY_CODE",
+      "name_ar": "subinventory code",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_LOCATOR_ID",
+      "type": "column",
+      "name": "LOCATOR_ID",
+      "name_ar": "locator id",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_ON_HAND_QUANTITY",
+      "type": "column",
+      "name": "ON_HAND_QUANTITY",
+      "name_ar": "on hand quantity",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_INV_ONHAND_QUANTITIES_LAST_UPDATE_DATE",
+      "type": "column",
+      "name": "LAST_UPDATE_DATE",
+      "name_ar": "last update date",
+      "description": "Column in INV_ONHAND_QUANTITIES",
+      "description_ar": "عمود في inv onhand quantities",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "view_FIN_PROFIT_LOSS_V",
+      "type": "view",
+      "name": "FIN_PROFIT_LOSS_V",
+      "name_ar": "fin profit loss v",
+      "description": "Profit and Loss statement view. Aggregates revenue and expenses by period.",
+      "description_ar": "profit and loss statement view. aggregates revenue and expenses by period.",
+      "properties": {
+        "classification": "SECRET",
+        "min_role": "CFO_ROLE"
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_LEDGER_ID",
+      "type": "column",
+      "name": "LEDGER_ID",
+      "name_ar": "ledger id",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_PERIOD_NAME",
+      "type": "column",
+      "name": "PERIOD_NAME",
+      "name_ar": "period name",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_ACCOUNT_TYPE",
+      "type": "column",
+      "name": "ACCOUNT_TYPE",
+      "name_ar": "account type",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_ACCOUNT_DESCRIPTION",
+      "type": "column",
+      "name": "ACCOUNT_DESCRIPTION",
+      "name_ar": "account description",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_PERIOD_AMOUNT",
+      "type": "column",
+      "name": "PERIOD_AMOUNT",
+      "name_ar": "period amount",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_FIN_PROFIT_LOSS_V_YTD_AMOUNT",
+      "type": "column",
+      "name": "YTD_AMOUNT",
+      "name_ar": "ytd amount",
+      "description": "Column in FIN_PROFIT_LOSS_V",
+      "description_ar": "عمود في fin profit loss v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "view_HR_HEADCOUNT_V",
+      "type": "view",
+      "name": "HR_HEADCOUNT_V",
+      "name_ar": "hr عدد الموظفين v",
+      "description": "Employee headcount by department and location. Used for HR reporting.",
+      "description_ar": "موظف عدد الموظفين by قسم and location. used for hr reporting.",
+      "properties": {
+        "classification": "RESTRICTED",
+        "min_role": "HR_ANALYST_ROLE"
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_ORGANIZATION_ID",
+      "type": "column",
+      "name": "ORGANIZATION_ID",
+      "name_ar": "منظمة id",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_ORGANIZATION_NAME",
+      "type": "column",
+      "name": "ORGANIZATION_NAME",
+      "name_ar": "منظمة name",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_LOCATION_ID",
+      "type": "column",
+      "name": "LOCATION_ID",
+      "name_ar": "موقع id",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_LOCATION_NAME",
+      "type": "column",
+      "name": "LOCATION_NAME",
+      "name_ar": "موقع name",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_HEADCOUNT",
+      "type": "column",
+      "name": "HEADCOUNT",
+      "name_ar": "عدد الموظفين",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    },
+    {
+      "id": "column_HR_HEADCOUNT_V_AS_OF_DATE",
+      "type": "column",
+      "name": "AS_OF_DATE",
+      "name_ar": "as of date",
+      "description": "Column in HR_HEADCOUNT_V",
+      "description_ar": "عمود في hr عدد الموظفين v",
+      "properties": {
+        "is_pk": false,
+        "is_fk": false,
+        "annotation": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_PERSON_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_PERSON_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_EFFECTIVE_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_EFFECTIVE_END_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "column_PER_ALL_PEOPLE_F_FULL_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_ASSIGNMENT_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_PERSON_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "table_PER_ALL_PEOPLE_F",
+      "type": "references",
+      "properties": {
+        "fk_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_JOB_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_ORGANIZATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_ASSIGNMENT_TYPE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_EFFECTIVE_LATEST_CHANGE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "column_PER_ALL_ASSIGNMENTS_M_LOCATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_SALARY_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_ASSIGNMENT_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "table_PER_ALL_ASSIGNMENTS_M",
+      "type": "references",
+      "properties": {
+        "fk_column": "ASSIGNMENT_ID"
+      }
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_SALARY_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_CURRENCY_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_DATE_FROM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_DATE_TO",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_CMP_ASG_SALARY",
+      "target": "column_CMP_ASG_SALARY_SALARY_BASIS_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "column_PAY_PAYROLL_RELATIONS_PAYROLL_RELATIONSHIP_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "column_PAY_PAYROLL_RELATIONS_PERSON_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "table_PER_ALL_PEOPLE_F",
+      "type": "references",
+      "properties": {
+        "fk_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "column_PAY_PAYROLL_RELATIONS_LEGISLATIVE_DATA_GROUP_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PAY_PAYROLL_RELATIONS",
+      "target": "column_PAY_PAYROLL_RELATIONS_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "domain_PROCUREMENT",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_PO_HEADER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_SEGMENT1",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_VENDOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_VENDOR_SITE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_CURRENCY_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_TOTAL_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_AUTHORIZATION_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_APPROVED_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_CREATED_BY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "column_PO_HEADERS_ALL_CREATION_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "domain_PROCUREMENT",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_PO_LINE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_PO_HEADER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "table_PO_HEADERS_ALL",
+      "type": "references",
+      "properties": {
+        "fk_column": "PO_HEADER_ID"
+      }
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_LINE_NUM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_ITEM_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_ITEM_DESCRIPTION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_QUANTITY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_UNIT_PRICE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PO_LINES_ALL",
+      "target": "column_PO_LINES_ALL_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_INVOICE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_INVOICE_NUM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_VENDOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_INVOICE_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_INVOICE_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_AMOUNT_PAID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_PAYMENT_STATUS_FLAG",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_CURRENCY_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "column_AP_INVOICES_ALL_DUE_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_PAYMENT_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_PAYMENT_NUM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_VENDOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_PAYMENT_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_PAYMENT_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_BANK_ACCOUNT_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_PAYMENT_METHOD_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "column_AP_PAYMENTS_ALL_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_CUSTOMER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_CUSTOMER_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_CUSTOMER_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_CUSTOMER_TYPE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_CREDIT_LIMIT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_TAX_REGISTRATION_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_CUSTOMERS",
+      "target": "column_AR_CUSTOMERS_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_INVOICE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_INVOICE_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_CUSTOMER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "table_AR_CUSTOMERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "CUSTOMER_ID"
+      }
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_INVOICE_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_INVOICE_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_AMOUNT_DUE_REMAINING",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_DUE_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "column_AR_INVOICES_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_JE_HEADER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_LEDGER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_JE_BATCH_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_PERIOD_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_JE_CATEGORY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_JE_SOURCE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_TOTAL_DEBIT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "column_GL_JE_HEADERS_TOTAL_CREDIT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_JE_LINE_NUM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_JE_HEADER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "table_GL_JE_HEADERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "JE_HEADER_ID"
+      }
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_CODE_COMBINATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_ENTERED_DR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_ENTERED_CR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_ACCOUNTED_DR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_ACCOUNTED_CR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_JE_LINES",
+      "target": "column_GL_JE_LINES_DESCRIPTION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_LEDGER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_CODE_COMBINATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_PERIOD_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_CURRENCY_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_PERIOD_NET_DR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_PERIOD_NET_CR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_BEGIN_BALANCE_DR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_GL_BALANCES",
+      "target": "column_GL_BALANCES_BEGIN_BALANCE_CR",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "domain_PROCUREMENT",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_VENDOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_VENDOR_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_VENDOR_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_VENDOR_TYPE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_TAX_REGISTRATION_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_PAYMENT_TERMS_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "column_POZ_SUPPLIERS_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "domain_PROCUREMENT",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_VENDOR_SITE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_VENDOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "references",
+      "properties": {
+        "fk_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_VENDOR_SITE_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_ADDRESS_LINE1",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_CITY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_COUNTRY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_BANK_ACCOUNT_NUM",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_POZ_SUPPLIER_SITES",
+      "target": "column_POZ_SUPPLIER_SITES_IBAN",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_LOCATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_LOCATION_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_LOCATION_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_ADDRESS_LINE_1",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_CITY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_REGION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_HR_LOCATIONS_ALL",
+      "target": "column_HR_LOCATIONS_ALL_COUNTRY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_JOB_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_JOB_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_JOB_FAMILY_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_EFFECTIVE_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_JOBS_F",
+      "target": "column_PER_JOBS_F_EFFECTIVE_END_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "column_PER_GRADES_F_GRADE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "column_PER_GRADES_F_GRADE_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "column_PER_GRADES_F_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "column_PER_GRADES_F_EFFECTIVE_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_GRADES_F",
+      "target": "column_PER_GRADES_F_EFFECTIVE_END_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_ABSENCE_ENTRY_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_PERSON_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "table_PER_ALL_PEOPLE_F",
+      "type": "references",
+      "properties": {
+        "fk_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_ABSENCE_TYPE_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_START_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_END_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_DURATION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ABSENCE_ENTRIES",
+      "target": "column_PER_ABSENCE_ENTRIES_APPROVAL_STATUS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_PERFORMANCE_RATING_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_PERSON_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "table_PER_ALL_PEOPLE_F",
+      "type": "references",
+      "properties": {
+        "fk_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_REVIEW_PERIOD",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_RATING_LEVEL",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_MANAGER_COMMENTS",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_PERFORMANCE_RATINGS",
+      "target": "column_PER_PERFORMANCE_RATINGS_REVIEW_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "domain_INVENTORY",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_INVENTORY_ITEM_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_ITEM_NUMBER",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_ITEM_DESCRIPTION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_ITEM_TYPE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_UNIT_OF_MEASURE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_LIST_PRICE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ITEM_MASTER",
+      "target": "column_INV_ITEM_MASTER_STANDARD_COST",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "domain_INVENTORY",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_INVENTORY_ITEM_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_ORGANIZATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_SUBINVENTORY_CODE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_LOCATOR_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_ON_HAND_QUANTITY",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_INV_ONHAND_QUANTITIES",
+      "target": "column_INV_ONHAND_QUANTITIES_LAST_UPDATE_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "domain_FINANCE",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_LEDGER_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_PERIOD_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_ACCOUNT_TYPE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_ACCOUNT_DESCRIPTION",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_PERIOD_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_FIN_PROFIT_LOSS_V",
+      "target": "column_FIN_PROFIT_LOSS_V_YTD_AMOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "domain_HR",
+      "type": "belongs_to",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_ORGANIZATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_ORGANIZATION_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_LOCATION_ID",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_LOCATION_NAME",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_HEADCOUNT",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "view_HR_HEADCOUNT_V",
+      "target": "column_HR_HEADCOUNT_V_AS_OF_DATE",
+      "type": "has_column",
+      "properties": {}
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "table_PER_ALL_ASSIGNMENTS_M",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PER_ALL_ASSIGNMENTS_M",
+      "target": "table_CMP_ASG_SALARY",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "ASSIGNMENT_ID"
+      }
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "table_PER_ABSENCE_ENTRIES",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_PER_ALL_PEOPLE_F",
+      "target": "table_PER_PERFORMANCE_RATINGS",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "PERSON_ID"
+      }
+    },
+    {
+      "source": "table_GL_JE_HEADERS",
+      "target": "table_GL_JE_LINES",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "JE_HEADER_ID"
+      }
+    },
+    {
+      "source": "table_AP_INVOICES_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_AP_PAYMENTS_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_AR_INVOICES",
+      "target": "table_AR_CUSTOMERS",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "CUSTOMER_ID"
+      }
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "table_PO_LINES_ALL",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "PO_HEADER_ID"
+      }
+    },
+    {
+      "source": "table_PO_HEADERS_ALL",
+      "target": "table_POZ_SUPPLIERS",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "VENDOR_ID"
+      }
+    },
+    {
+      "source": "table_POZ_SUPPLIERS",
+      "target": "table_POZ_SUPPLIER_SITES",
+      "type": "joins_with",
+      "properties": {
+        "join_column": "VENDOR_ID"
+      }
+    }
+  ],
+  "metadata": {
+    "total_nodes": 199,
+    "total_edges": 217,
+    "domains": [
+      "HR",
+      "FINANCE",
+      "PROCUREMENT",
+      "INVENTORY"
+    ]
+  }
+}

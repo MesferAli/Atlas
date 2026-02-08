@@ -1,0 +1,57 @@
+{
+  "knowledge_graph": {
+    "total_nodes": 199,
+    "total_edges": 217,
+    "node_types": {
+      "domain": 4,
+      "table": 22,
+      "column": 170,
+      "function": 1,
+      "view": 2
+    },
+    "edge_types": {
+      "belongs_to": 24,
+      "has_column": 170,
+      "references": 12,
+      "joins_with": 11
+    },
+    "domains": [
+      "HR",
+      "FINANCE",
+      "PROCUREMENT",
+      "INVENTORY"
+    ]
+  },
+  "data_generation": {
+    "total_examples": 523,
+    "by_complexity": {
+      "simple": 330,
+      "medium": 182,
+      "complex": 11
+    },
+    "by_domain": {
+      "HR": 165,
+      "PROCUREMENT": 102,
+      "FINANCE": 200,
+      "INVENTORY": 56
+    },
+    "by_template": {
+      "select_columns": 98,
+      "count": 121,
+      "select_all": 111,
+      "aggregate_sum": 54,
+      "aggregate_avg": 58,
+      "top_n": 70,
+      "join": 11
+    }
+  },
+  "export": {
+    "train_examples": 471,
+    "val_examples": 52,
+    "train_path": "data/training/train.jsonl",
+    "val_path": "data/training/val.jsonl"
+  },
+  "runpod_script": "data/training/train_runpod.py",
+  "duration_seconds": 0.014592,
+  "completed_at": "2026-02-08T08:26:03.965522"
+}
